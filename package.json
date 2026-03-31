@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "axios": "^1.14.0",
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "backend": "cd backend && node app.js",
+    "frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+  }
+}
