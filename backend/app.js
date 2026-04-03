@@ -20,7 +20,13 @@ const { Server } = require('socket.io');
 const app = express();
 connectDB(); // Database call
 
-app.use(cors());
+// backend/app.js
+
+app.use(cors({
+    origin: "*", // Testing ke liye "*" (anywhere) theek hai, lekin professional ke liye Vercel link daalein
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 

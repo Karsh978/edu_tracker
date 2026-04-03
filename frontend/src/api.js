@@ -2,7 +2,8 @@ import axios from 'axios';
 
 
 const API = axios.create({
-  baseURL: "https://edutrack-api-8t5g.onrender.com" 
+ 
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
 });
 
 API.interceptors.request.use((req) => {
