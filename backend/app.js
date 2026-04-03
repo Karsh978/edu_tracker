@@ -23,7 +23,7 @@ connectDB(); // Database call
 // backend/app.js
 
 app.use(cors({
-    origin: "*", // Testing ke liye "*" (anywhere) theek hai, lekin professional ke liye Vercel link daalein
+    origin: "https://edu-tracker-rho.vercel.app", // Testing ke liye "*" (anywhere) theek hai, lekin professional ke liye Vercel link daalein
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
