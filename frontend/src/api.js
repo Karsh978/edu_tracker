@@ -6,10 +6,11 @@ const API = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
 });
 
+// api.js ke interceptor ko aise update karein:
 API.interceptors.request.use((req) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if (user && user.token) {
-    req.headers.Authorization = `Bearer ${user.token}`;
+  const token = localStorage.getItem('token'); 
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
   }
   return req;
 });
