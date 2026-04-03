@@ -5,6 +5,8 @@ import {
   CategoryScale, LinearScale, BarElement
 } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -331,6 +333,7 @@ const AdminDashboard = () => {
   const [marks, setMarks] = useState('');
   const [selectedEnrollment, setSelectedEnrollment] = useState('');
   const [attStatus, setAttStatus] = useState('Present');
+  
 
   const fetchData = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -365,8 +368,26 @@ const AdminDashboard = () => {
 
   const handleAddGrade = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/api/grades', { enrollmentId: selectedEnrollment, marks }, { headers: getHeaders() });
-    setMarks(''); fetchData(); alert("Grade Saved!");
+    try {
+      // Find the student ID from the selected enrollment
+      const enroll = enrollments.find(en => en._id === selectedEnrollment);
+      if (!enroll) return alert("Select an enrollment first!");
+
+      await axios.post('http://localhost:5000/api/grades', {
+        studentId: enroll.student._id, // Extracts student ID
+        enrollmentId: selectedEnrollment,
+        marks: marks
+      }, {
+        headers: getHeaders()
+      });
+
+      setMarks('');
+      fetchData();
+      alert("Grade Added!");
+    } catch (err) {
+      console.error(err);
+      alert("Error adding grade");
+    }
   };
 
   const handleMarkAttendance = async (e) => {
@@ -601,7 +622,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="fg">
                       <label className="fl">Select Course</label>
-                      <select className="fs" onChange={e => setSelectedCourse(e.target.value)} required>
+                      <select className="fs" value={selectedCourse} onChange={e => setSelectedCourse(e.target.value)} required>
                         <option value="">Choose a course...</option>
                         {courses.map(c => <option key={c._id} value={c._id}>{c.title}</option>)}
                       </select>
@@ -620,7 +641,7 @@ const AdminDashboard = () => {
                   <form onSubmit={handleAddGrade}>
                     <div className="fg">
                       <label className="fl">Select Enrollment</label>
-                      <select className="fs" onChange={e => setSelectedEnrollment(e.target.value)} required>
+                      <select className="fs" value={selectedEnrollment} onChange={e => setSelectedEnrollment(e.target.value)} required>
                         <option value="">Select student enrollment...</option>
                         {enrollments.map(e => (
                           <option key={e._id} value={e._id}>{e.student?.name} — {e.course?.title}</option>
@@ -645,7 +666,7 @@ const AdminDashboard = () => {
                   <form onSubmit={handleMarkAttendance}>
                     <div className="fg">
                       <label className="fl">Select Student</label>
-                      <select className="fs" onChange={e => setSelectedEnrollment(e.target.value)} required>
+                      <select className="fs" value={selectedEnrollment} onChange={e => setSelectedEnrollment(e.target.value)} required>
                         <option value="">Select student enrollment...</option>
                         {enrollments.map(e => (
                           <option key={e._id} value={e._id}>{e.student?.name} — {e.course?.title}</option>
@@ -654,7 +675,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="fg">
                       <label className="fl">Status</label>
-                      <select className="fs" onChange={e => setAttStatus(e.target.value)}>
+                      <select className="fs" value={attStatus} onChange={e => setAttStatus(e.target.value)}>
                         <option value="Present">✅ Present</option>
                         <option value="Absent">❌ Absent</option>
                       </select>
@@ -725,7 +746,7 @@ const AdminDashboard = () => {
               <div>
                 <div className="footer-col-ttl">Quick Links</div>
                 <div className="footer-links">
-                  {['⊞  Dashboard', '📚  Courses', '🎓  Enrollments', '📊  Reports'].map(l => (
+                  {['⊞   Dashboard', '📚   Courses', '🎓   Enrollments', '📊   Reports'].map(l => (
                     <span key={l} className="footer-lnk">{l}</span>
                   ))}
                 </div>
@@ -733,7 +754,7 @@ const AdminDashboard = () => {
               <div>
                 <div className="footer-col-ttl">System</div>
                 <div className="footer-links">
-                  {['🏫  Institution Portal', '🔒  Privacy Policy', '📖  Documentation', '🛠  Support'].map(l => (
+                  {['🏫   Institution Portal', '🔒   Privacy Policy', '📖   Documentation', '🛠   Support'].map(l => (
                     <span key={l} className="footer-lnk">{l}</span>
                   ))}
                 </div>

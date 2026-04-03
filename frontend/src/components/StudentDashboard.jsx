@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Profile from './Profile';
+import { io } from "socket.io-client";
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
+const socket = io("http://localhost:5000");
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -36,7 +41,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
 .sb-brand-text h2{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.3px;}
 .sb-brand-text span{font-size:10px;color:var(--n200);font-weight:500;letter-spacing:.8px;text-transform:uppercase;}
 
-/* Student Profile */
 .sb-profile{
   padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.07);
   display:flex;align-items:center;gap:11px;
@@ -61,7 +65,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
   padding:3px 8px;border-radius:20px;letter-spacing:.4px;
 }
 
-/* Sidebar stats mini */
 .sb-mini-stats{
   padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07);
   display:grid;grid-template-columns:1fr 1fr;gap:8px;
@@ -73,7 +76,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
 .sb-mini-val{font-size:18px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1;}
 .sb-mini-lbl{font-size:9.5px;color:var(--n200);font-weight:500;margin-top:3px;text-transform:uppercase;letter-spacing:.6px;}
 
-/* Nav */
 .sb-nav{padding:14px 10px;flex:1;}
 .sb-sec-lbl{font-size:9px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:1.4px;padding:0 8px 8px;margin-top:4px;}
 .sb-item{
@@ -163,7 +165,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
 .wb-stat-lbl{font-size:10.5px;color:var(--n200);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.6px;}
 .wb-divider{width:1px;height:48px;background:rgba(255,255,255,.12);}
 
-/* Stat cards */
+/* Stats Grid */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px;}
 .stat-card{
   background:var(--card);border-radius:var(--r);border:1px solid var(--border);
@@ -185,7 +187,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
 .p-blue{background:var(--n100);color:var(--n600);}
 .p-gold{background:#FEF3C7;color:#92400E;}
 
-/* Section header */
 .sec-hd{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
 .sec-ttl{font-size:12px;font-weight:800;color:var(--txt1);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
 .sec-line{flex:1;height:1px;background:var(--border);}
@@ -248,8 +249,6 @@ td{padding:12px 18px;font-size:13px;color:var(--txt1);}
   padding:10px 18px;transition:background .15s;
   border-bottom:1px solid #F7FAFF;
 }
-.att-item:last-child{border-bottom:none;}
-.att-item:hover{background:#F7FAFF;}
 .att-item-date{
   width:46px;height:46px;border-radius:10px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -290,26 +289,63 @@ const StudentDashboard = () => {
   const [grades, setGrades] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [activeNav, setActiveNav] = useState('dashboard');
+  const [stats, setStats] = useState({ avgMarks: 0, attPct: 0, presentCount: 0, absentCount: 0 });
   const userName = localStorage.getItem('userName') || 'Student';
+  // StudentDashboard.jsx ke upar states ke paas add karein
+const [userData, setUserData] = useState(null);
+
+
+const heatmapData = attendance.map(a => ({
+  date: a.date.split('T')[0], // YYYY-MM-DD format
+  count: a.status === 'Present' ? 1 : 0
+}));
+const userRole = localStorage.getItem('userRole'); // Login ke waqt save kiya tha
+
+const menuItems = [
+  { key: 'dashboard', icon: '⊞', label: 'Dashboard', roles: ['Student', 'Faculty', 'Admin'] },
+  { key: 'grades', icon: '📊', label: 'My Grades', roles: ['Student'] },
+  { key: 'manage-grades', icon: '📝', label: 'Manage Marks', roles: ['Faculty', 'Admin'] },
+  { key: 'attendance', icon: '🗓', label: 'Attendance', roles: ['Student'] },
+  { key: 'reports', icon: '📈', label: 'Full Reports', roles: ['Admin'] },
+];
+//email notification 
+useEffect(() => {
+  const userId = localStorage.getItem('userId');
+  if (userId) {
+    socket.emit('join_room', userId);
+  }
+
+  socket.on('new_marks', (data) => {
+    alert(`📢 Notification: Aapke ${data.course} mein ${data.marks} marks aaye hain!`);
+    fetchData(); // Dashboard refresh karein
+  });
+
+  return () => socket.off('new_marks');
+}, []);
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const resGrades = await axios.get('http://localhost:5000/api/student/my-grades', { headers });
-      setGrades(resGrades.data);
       const resAttendance = await axios.get('http://localhost:5000/api/student/my-attendance', { headers });
+      const resUser = await axios.get('http://localhost:5000/api/auth/me', { headers });
+
+      setGrades(resGrades.data);
       setAttendance(resAttendance.data);
+      setUserData(resUser.data);
+
+      const pCount = resAttendance.data.filter(a => a.status === 'Present').length;
+      const aCount = resAttendance.data.filter(a => a.status === 'Absent').length;
+      const total = resAttendance.data.length;
+      const pct = total > 0 ? Math.round((pCount / total) * 100) : 0;
+      const avg = resGrades.data.length > 0 ? Math.round(resGrades.data.reduce((s, g) => s + g.marks, 0) / resGrades.data.length) : 0;
+
+      setStats({ avgMarks: avg, attPct: pct, presentCount: pCount, absentCount: aCount });
     } catch (err) { console.log("Fetch error:", err); }
   };
 
   useEffect(() => { fetchData(); }, []);
-
-  const presentCount = attendance.filter(a => a.status === 'Present').length;
-  const absentCount = attendance.filter(a => a.status === 'Absent').length;
-  const totalAtt = attendance.length;
-  const attPct = totalAtt > 0 ? Math.round((presentCount / totalAtt) * 100) : 0;
-  const avgMarks = grades.length > 0 ? Math.round(grades.reduce((s, g) => s + g.marks, 0) / grades.length) : 0;
 
   const getGC = (g) => {
     if (!g) return '';
@@ -328,16 +364,16 @@ const StudentDashboard = () => {
 
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
-  // ring calc
+  // Ring Calculation
   const radius = 34;
   const circ = 2 * Math.PI * radius;
-  const offset = circ - (attPct / 100) * circ;
-  const ringColor = attPct >= 75 ? '#10B981' : attPct >= 50 ? '#F5A623' : '#F04E6A';
+  const offset = circ - (stats.attPct / 100) * circ;
+  const ringColor = stats.attPct >= 75 ? '#10B981' : stats.attPct >= 50 ? '#F5A623' : '#F04E6A';
 
   const navItems = [
     { key: 'dashboard', icon: '⊞', label: 'Dashboard' },
     { key: 'grades', icon: '📊', label: 'My Grades', count: grades.length },
-    { key: 'attendance', icon: '🗓', label: 'Attendance', count: totalAtt },
+    { key: 'attendance', icon: '🗓', label: 'Attendance', count: attendance.length },
     { key: 'courses', icon: '📚', label: 'My Courses' },
     { key: 'timetable', icon: '🕐', label: 'Timetable' },
   ];
@@ -346,8 +382,7 @@ const StudentDashboard = () => {
     <>
       <style>{CSS}</style>
       <div className="shell">
-
-        {/* ── SIDEBAR ── */}
+        {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="sb-brand">
             <div className="sb-logo">ET</div>
@@ -357,12 +392,15 @@ const StudentDashboard = () => {
             </div>
           </div>
 
-          {/* Student Profile */}
           <div className="sb-profile">
-            <div className="sb-avatar">
-              {userName.charAt(0).toUpperCase()}
-              <span className="sb-avatar-dot" />
-            </div>
+            
+<div className="sb-avatar">
+  {userData?.profileImage ? (
+    <img src={`http://localhost:5000${userData.profileImage}`} style={{width:'100%', height:'100%', borderRadius:'50%'}} alt='wait' />
+  ) : (
+    userName.charAt(0).toUpperCase()
+  )}
+</div>
             <div className="sb-profile-info">
               <h4>{userName}</h4>
               <p>Student · Active</p>
@@ -370,14 +408,13 @@ const StudentDashboard = () => {
             <span className="sb-stu-badge">Student</span>
           </div>
 
-          {/* Mini stats in sidebar */}
           <div className="sb-mini-stats">
             <div className="sb-mini-stat">
               <div className="sb-mini-val">{grades.length}</div>
               <div className="sb-mini-lbl">Courses</div>
             </div>
             <div className="sb-mini-stat">
-              <div className="sb-mini-val" style={{ color: attPct >= 75 ? '#10B981' : '#F5A623' }}>{attPct}%</div>
+              <div className="sb-mini-val" style={{ color: ringColor }}>{stats.attPct}%</div>
               <div className="sb-mini-lbl">Attendance</div>
             </div>
           </div>
@@ -385,32 +422,19 @@ const StudentDashboard = () => {
           <nav className="sb-nav">
             <div className="sb-sec-lbl">Navigation</div>
             {navItems.map(item => (
-              <div
-                key={item.key}
-                className={`sb-item ${activeNav === item.key ? 'active' : ''}`}
-                onClick={() => setActiveNav(item.key)}
-              >
+              <div key={item.key} className={`sb-item ${activeNav === item.key ? 'active' : ''}`} onClick={() => setActiveNav(item.key)}>
                 {activeNav === item.key && <span className="sb-active-bar" />}
                 <span className="sb-item-icon">{item.icon}</span>
                 <span className="sb-item-label">{item.label}</span>
-                {item.count !== undefined && (
-                  <span style={{ fontSize: 10.5, fontWeight: 700, background: 'rgba(0,194,184,.2)', color: '#00C2B8', padding: '1px 7px', borderRadius: 20 }}>
-                    {item.count}
-                  </span>
-                )}
+                {item.count !== undefined && <span className="sb-stu-badge">{item.count}</span>}
               </div>
             ))}
             <div className="sb-divider" />
             <div className="sb-sec-lbl">Account</div>
-            {[
-              { key: 'profile', icon: '👤', label: 'My Profile' },
-              { key: 'settings', icon: '⚙', label: 'Settings' },
-            ].map(item => (
-              <div key={item.key} className={`sb-item ${activeNav === item.key ? 'active' : ''}`} onClick={() => setActiveNav(item.key)}>
-                <span className="sb-item-icon">{item.icon}</span>
-                <span className="sb-item-label">{item.label}</span>
-              </div>
-            ))}
+            <div className={`sb-item ${activeNav === 'profile' ? 'active' : ''}`} onClick={() => setActiveNav('profile')}>
+              <span className="sb-item-icon">👤</span>
+              <span className="sb-item-label">My Profile</span>
+            </div>
           </nav>
 
           <div className="sb-bottom">
@@ -420,23 +444,18 @@ const StudentDashboard = () => {
           </div>
         </aside>
 
-        {/* ── MAIN PANEL ── */}
+        {/* MAIN PANEL */}
         <div className="panel">
-
-          {/* HEADER */}
           <header className="header">
             <div className="header-left">
               <div className="breadcrumb">
-                <span>EduTrack</span>
-                <span style={{ margin: '0 2px' }}>›</span>
-                <strong>Student Dashboard</strong>
+                <span>EduTrack</span> <span style={{ margin: '0 2px' }}>›</span>
+                <strong>{activeNav === 'profile' ? 'Profile' : 'Student Dashboard'}</strong>
               </div>
             </div>
             <div className="header-right">
               <div className="h-date">📅 {today}</div>
-              <div className="h-btn" title="Notifications">🔔<span className="h-notif-dot" /></div>
-              <div className="h-btn" title="Messages">💬</div>
-              <div className="h-btn" title="Help">❓</div>
+              <div className="h-btn">🔔<span className="h-notif-dot" /></div>
               <div className="h-divider" />
               <div className="h-user">
                 <div className="h-avatar">{userName.charAt(0).toUpperCase()}</div>
@@ -444,228 +463,170 @@ const StudentDashboard = () => {
                   <div className="h-uname">{userName}</div>
                   <div className="h-urole">Student</div>
                 </div>
-                <span style={{ color: '#8CA0BF', fontSize: 11, marginLeft: 3 }}>▾</span>
               </div>
             </div>
           </header>
 
-          {/* PAGE BODY */}
           <main className="page-body">
-
-            {/* Welcome Banner */}
-            <div className="welcome-banner">
-              <div className="wb-left">
-                <div className="wb-greeting">Welcome back 👋</div>
-                <div className="wb-name">{userName}</div>
-                <div className="wb-sub">Here's a summary of your academic progress today.</div>
-              </div>
-              <div className="wb-right">
-                <div className="wb-stat">
-                  <div className="wb-stat-val">{avgMarks}</div>
-                  <div className="wb-stat-lbl">Avg Marks</div>
-                </div>
-                <div className="wb-divider" />
-                <div className="wb-stat">
-                  <div className="wb-stat-val">{attPct}%</div>
-                  <div className="wb-stat-lbl">Attendance</div>
-                </div>
-                <div className="wb-divider" />
-                <div className="wb-stat">
-                  <div className="wb-stat-val">{grades.length}</div>
-                  <div className="wb-stat-lbl">Courses</div>
-                </div>
-              </div>
-            </div>
-
-            {/* STATS */}
-            <div className="stats-grid">
-              {[
-                { icon: '📚', val: grades.length, lbl: 'Enrolled Courses', pill: 'Active', cls: 'p-blue', bg: 'rgba(0,194,184,.1)' },
-                { icon: '📝', val: avgMarks, lbl: 'Average Marks', pill: avgMarks >= 75 ? 'Excellent' : avgMarks >= 50 ? 'Good' : 'Needs Work', cls: avgMarks >= 75 ? 'p-green' : 'p-gold', bg: 'rgba(45,95,196,.1)' },
-                { icon: '✅', val: presentCount, lbl: 'Classes Present', pill: `${attPct}% rate`, cls: 'p-green', bg: 'rgba(16,185,129,.1)' },
-                { icon: '❌', val: absentCount, lbl: 'Classes Absent', pill: absentCount === 0 ? 'Perfect!' : 'Check record', cls: absentCount === 0 ? 'p-green' : 'p-gold', bg: 'rgba(245,166,35,.1)' },
-              ].map((s, i) => (
-                <div className="stat-card" key={i}>
-                  <div className="stat-icon" style={{ background: s.bg }}>{s.icon}</div>
-                  <div>
-                    <div className="stat-val">{s.val}</div>
-                    <div className="stat-lbl">{s.lbl}</div>
-                    <span className={`stat-pill ${s.cls}`}>{s.pill}</span>
+            {activeNav === 'profile' ? (
+              <Profile />
+            ) : (
+              <>
+                {/* Dashboard View */}
+                <div className="welcome-banner">
+                  <div className="wb-left">
+                    <div className="wb-greeting">Welcome back 👋</div>
+                    <div className="wb-name">{userName}</div>
+                    <div className="wb-sub">Here's a summary of your academic progress today.</div>
+                  </div>
+                  <div className="wb-right">
+                    <div className="wb-stat">
+                      <div className="wb-stat-val">{stats.avgMarks}</div>
+                      <div className="wb-stat-lbl">Avg Marks</div>
+                    </div>
+                    <div className="wb-divider" />
+                    <div className="wb-stat">
+                      <div className="wb-stat-val">{stats.attPct}%</div>
+                      <div className="wb-stat-lbl">Attendance</div>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* REPORT CARD */}
-            <div className="sec-hd"><span className="sec-ttl">My Report Card</span><div className="sec-line" /></div>
-            <div className="tbl-wrap">
-              <div className="tbl-bar">
-                <span className="tbl-ttl">Grade Overview — All Courses</span>
-                <span className="tbl-sub">{grades.length} subject{grades.length !== 1 ? 's' : ''} enrolled</span>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Course Name</th>
-                    <th>Marks</th>
-                    <th>Performance</th>
-                    <th>Grade</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {grades.length === 0 ? (
-                    <tr><td colSpan="5">
-                      <div className="empty-st">
-                        <div className="empty-st-ic">📋</div>
-                        <div className="empty-st-tx">No grades recorded yet</div>
+                <div className="stats-grid">
+                  {[
+                    { icon: '📚', val: grades.length, lbl: 'Enrolled Courses', pill: 'Active', cls: 'p-blue', bg: 'rgba(0,194,184,.1)' },
+                    { icon: '📝', val: stats.avgMarks, lbl: 'Average Marks', pill: stats.avgMarks >= 75 ? 'Excellent' : 'Good', cls: 'p-green', bg: 'rgba(45,95,196,.1)' },
+                    { icon: '✅', val: stats.presentCount, lbl: 'Present', pill: `${stats.attPct}% rate`, cls: 'p-green', bg: 'rgba(16,185,129,.1)' },
+                    { icon: '❌', val: stats.absentCount, lbl: 'Absent', pill: 'Check log', cls: 'p-gold', bg: 'rgba(245,166,35,.1)' },
+                  ].map((s, i) => (
+                    <div className="stat-card" key={i}>
+                      <div className="stat-icon" style={{ background: s.bg }}>{s.icon}</div>
+                      <div>
+                        <div className="stat-val">{s.val}</div>
+                        <div className="stat-lbl">{s.lbl}</div>
+                        <span className={`stat-pill ${s.cls}`}>{s.pill}</span>
                       </div>
-                    </td></tr>
-                  ) : grades.map((g, i) => (
-                    <tr key={g._id}>
-                      <td style={{ color: '#8CA0BF', fontFamily: 'JetBrains Mono', fontSize: 11 }}>{String(i + 1).padStart(2, '0')}</td>
-                      <td style={{ fontWeight: 600 }}>{g.enrollment?.course?.title}</td>
-                      <td>
-                        <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 600, fontSize: 14 }}>{g.marks}</span>
-                        <span style={{ color: '#8CA0BF', fontSize: 11 }}>/100</span>
-                      </td>
-                      <td>
-                        <div className="marks-bar-wrap">
-                          <div className="marks-bar-bg">
-                            <div className="marks-bar-fill" style={{ width: `${g.marks}%`, background: getBarColor(g.marks) }} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tables & Attendance grid */}
+                <div className="sec-hd"><span className="sec-ttl">My Report Card</span><div className="sec-line" /></div>
+                <div className="tbl-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>#</th><th>Course Name</th><th>Marks</th><th>Performance</th><th>Grade</th></tr>
+                    </thead>
+                    <tbody>
+                      {grades.map((g, i) => (
+                        <tr key={i}>
+                          <td>{i+1}</td>
+                          <td style={{fontWeight:600}}>{g.enrollment?.course?.title || 'Course'}</td>
+                          <td>{g.marks}/100</td>
+                          <td>
+                            <div className="marks-bar-wrap">
+                              <div className="marks-bar-bg"><div className="marks-bar-fill" style={{ width: `${g.marks}%`, background: getBarColor(g.marks) }} /></div>
+                            </div>
+                          </td>
+                          <td><span className={`gp ${getGC(g.grade)}`}>{g.grade}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="att-grid">
+                  <div className="att-summary-card">
+                    <div className="att-summary-title">📈 Attendance Summary</div>
+                    <div className="att-ring-wrap">
+                      <div className="att-ring">
+                        <svg viewBox="0 0 90 90">
+                          <circle className="att-ring-track" cx="45" cy="45" r={radius} />
+                          <circle className="att-ring-fill" cx="45" cy="45" r={radius} stroke={ringColor} strokeDasharray={circ} strokeDashoffset={offset} />
+                        </svg>
+                        <div className="att-ring-text"><div className="att-ring-pct">{stats.attPct}%</div></div>
+                      </div>
+                      <div className="att-ring-info">
+                        <div className="att-ring-row"><span>Present</span> <strong>{stats.presentCount}</strong></div>
+                        <div className="att-ring-row"><span>Absent</span> <strong>{stats.absentCount}</strong></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="att-list-card">
+                     <div className="att-list-hd">Detailed Log</div>
+                     <div className="att-scroll">
+                        {attendance.map((a, i) => (
+                          <div className="att-item" key={i}>
+                            <div className="att-item-date">
+                               <div className="att-item-day">{new Date(a.date).getDate()}</div>
+                               <div className="att-item-mon">{new Date(a.date).toLocaleString('default', { month: 'short' })}</div>
+                            </div>
+                            <div className="att-item-info">
+                               <div className="att-item-course">Class Session</div>
+                               <div className="att-item-time">{new Date(a.date).toLocaleDateString()}</div>
+                            </div>
+                            <div className={`att-status ${a.status === 'Present' ? 'att-present' : 'att-absent'}`}>{a.status}</div>
                           </div>
-                          <span style={{ fontSize: 11, color: getBarColor(g.marks), fontWeight: 600 }}>
-                            {g.marks >= 75 ? 'Excellent' : g.marks >= 50 ? 'Good' : g.marks >= 35 ? 'Average' : 'Low'}
-                          </span>
-                        </div>
-                      </td>
-                      <td><span className={`gp ${getGC(g.grade)}`}>{g.grade}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* ATTENDANCE */}
-            <div className="sec-hd"><span className="sec-ttl">Attendance Record</span><div className="sec-line" /></div>
-            <div className="att-grid">
-
-              {/* Summary donut card */}
-              <div className="att-summary-card">
-                <div className="att-summary-title">
-                  <span style={{ fontSize: 16 }}>📈</span> Attendance Summary
-                </div>
-                <div className="att-ring-wrap">
-                  <div className="att-ring">
-                    <svg viewBox="0 0 90 90">
-                      <circle className="att-ring-track" cx="45" cy="45" r={radius} />
-                      <circle
-                        className="att-ring-fill"
-                        cx="45" cy="45" r={radius}
-                        stroke={ringColor}
-                        strokeDasharray={circ}
-                        strokeDashoffset={offset}
-                      />
-                    </svg>
-                    <div className="att-ring-text">
-                      <div className="att-ring-pct">{attPct}%</div>
-                      <div className="att-ring-sub">Rate</div>
-                    </div>
-                  </div>
-                  <div className="att-ring-info">
-                    {[
-                      { color: '#10B981', label: 'Present', val: presentCount },
-                      { color: '#F04E6A', label: 'Absent', val: absentCount },
-                      { color: '#5585E8', label: 'Total', val: totalAtt },
-                    ].map(row => (
-                      <div className="att-ring-row" key={row.label}>
-                        <span className="att-ring-lbl">
-                          <span className="att-dot" style={{ background: row.color }} />
-                          {row.label}
-                        </span>
-                        <span className="att-ring-val">{row.val}</span>
-                      </div>
-                    ))}
-                    <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 8, background: attPct >= 75 ? '#D1FAE5' : '#FEF3C7', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 13 }}>{attPct >= 75 ? '✅' : '⚠️'}</span>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, color: attPct >= 75 ? '#065F46' : '#92400E' }}>
-                        {attPct >= 75 ? 'Good standing!' : 'Below 75% threshold'}
-                      </span>
-                    </div>
+                        ))}
+                     </div>
                   </div>
                 </div>
-              </div>
+                
+<div style={{ background: '#fff', padding: '20px', borderRadius: '15px', marginTop: '20px' }}>
+  <h3>Attendance Consistency</h3>
+  <CalendarHeatmap
+    startDate={new Date('2026-01-01')}
+    endDate={new Date('2026-12-31')}
+    values={heatmapData}
+    classForValue={(value) => {
+      if (!value || value.count === 0) return 'color-empty';
+      return 'color-scale-present'; // Green color for present
+    }}
+ 
 
-              {/* Attendance list */}
-              <div className="att-list-card">
-                <div className="att-list-hd">
-                  <span className="att-list-ttl">Detailed Log</span>
-                  <span style={{ fontSize: 11.5, color: '#8CA0BF', fontWeight: 500 }}>{totalAtt} records</span>
+    
+  />
+  {/* 2. Now start your mapping logic outside the tag */}
+{menuItems
+  .filter(item => item.roles.includes(userRole))
+  .map(item => (
+    <div key={item.key} className="sb-item">
+      {item.label}
+    </div>
+  ))
+}
+</div>
+              </>
+            )}
+
+            {/* FOOTER - Ab sab set hai */}
+            <footer className="footer">
+              <div className="footer-inner">
+                <div className="footer-brand">
+                  <div className="footer-logo-row">
+                    <div className="footer-logo">ET</div>
+                    <span className="footer-logo-name">EduTrack</span>
+                  </div>
+                  <p className="footer-desc">Professional Academic Management System for Modern Students.</p>
                 </div>
-                <div className="att-scroll">
-                  {attendance.length === 0 ? (
-                    <div className="empty-st">
-                      <div className="empty-st-ic">🗓</div>
-                      <div className="empty-st-tx">No attendance records yet</div>
-                    </div>
-                  ) : attendance.slice().reverse().map(a => {
-                    const d = new Date(a.date);
-                    return (
-                      <div className="att-item" key={a._id}>
-                        <div className="att-item-date">
-                          <div className="att-item-day">{d.getDate()}</div>
-                          <div className="att-item-mon">{d.toLocaleString('en', { month: 'short' })}</div>
-                        </div>
-                        <div className="att-item-info">
-                          <div className="att-item-course">{a.course?.title}</div>
-                          <div className="att-item-time">{d.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric' })}</div>
-                        </div>
-                        <span className={`att-status ${a.status === 'Present' ? 'att-present' : 'att-absent'}`}>
-                          {a.status === 'Present' ? '✓ Present' : '✗ Absent'}
-                        </span>
-                      </div>
-                    );
-                  })}
+                <div>
+                  <div className="footer-col-ttl">Resources</div>
+                  <div className="footer-links">
+                    <span className="footer-lnk">Support Center</span>
+                    <span className="footer-lnk">Documentation</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="footer-col-ttl">System Status</div>
+                  <div className="footer-status"><span className="status-dot" /> Operational</div>
                 </div>
               </div>
-            </div>
-
+              <div className="footer-bottom">
+                <div className="footer-copy">© 2026 EduTrack Dashboard</div>
+                <div className="footer-ver">v2.0.4-PRO</div>
+              </div>
+            </footer>
           </main>
-
-          {/* ── FOOTER ── */}
-          <footer className="footer">
-            <div className="footer-inner">
-              <div className="footer-brand">
-                <div className="footer-logo-row">
-                  <div className="footer-logo">ET</div>
-                  <span className="footer-logo-name">EduTrack</span>
-                </div>
-                <p className="footer-desc">Your personal academic hub. Track grades, attendance, and course progress in one place.</p>
-              </div>
-              <div>
-                <div className="footer-col-ttl">Student Links</div>
-                <div className="footer-links">
-                  {['⊞  Dashboard', '📊  My Grades', '🗓  Attendance', '📚  Courses'].map(l => (
-                    <span key={l} className="footer-lnk">{l}</span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="footer-col-ttl">Support</div>
-                <div className="footer-links">
-                  {['🏫  Institution Portal', '📖  Student Handbook', '🛠  Help Desk', '🔒  Privacy Policy'].map(l => (
-                    <span key={l} className="footer-lnk">{l}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="footer-bottom">
-              <span className="footer-copy">© {new Date().getFullYear()} EduTrack LMS. All rights reserved.</span>
-              <div className="footer-status"><span className="status-dot" />All systems operational</div>
-              <span className="footer-ver">v2.4.1</span>
-            </div>
-          </footer>
-
         </div>
       </div>
     </>

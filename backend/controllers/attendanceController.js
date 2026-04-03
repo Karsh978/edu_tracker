@@ -17,7 +17,7 @@ exports.markAttendance = async (req, res) => {
   }
 };
 
-// Student ki total attendance report dekhne ke liye
+// total student attendance report
 exports.getAttendanceReport = async (req, res) => {
   try {
     const report = await Attendance.find({ student: req.params.studentId })

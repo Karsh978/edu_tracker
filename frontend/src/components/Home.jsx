@@ -1,7 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [activeNav, setActiveNav] = useState("");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const page = {
     fontFamily: "'Playfair Display', 'Georgia', serif",
@@ -14,191 +24,252 @@ const Home = () => {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "0 80px",
-    height: "72px",
-    background: "#FFFFFF",
-    borderBottom: "1px solid #E8E4DD",
-    position: "sticky",
+    padding: scrolled ? "0 80px" : "0 80px",
+    height: scrolled ? "64px" : "80px",
+    background: scrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.0)",
+    backdropFilter: scrolled ? "blur(20px)" : "none",
+    borderBottom: scrolled ? "1px solid rgba(232,228,221,0.8)" : "1px solid rgba(255,255,255,0.1)",
+    position: "fixed",
     top: 0,
+    left: 0,
+    right: 0,
     zIndex: 100,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.05)"
+    boxShadow: scrolled ? "0 4px 32px rgba(0,0,0,0.08)" : "none",
+    transition: "all 0.35s cubic-bezier(0.4,0,0.2,1)"
   };
 
   const navLogo = {
     display: "flex",
     alignItems: "center",
-    gap: "10px"
+    gap: "12px"
   };
 
   const logoMark = {
-    width: "36px",
-    height: "36px",
+    width: "40px",
+    height: "40px",
     background: "linear-gradient(135deg, #C45B1A 0%, #E07A3A 100%)",
-    borderRadius: "10px",
+    borderRadius: "12px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     color: "white",
     fontWeight: "700",
-    fontSize: "16px",
+    fontSize: "17px",
     fontFamily: "'Playfair Display', serif",
-    letterSpacing: "-0.5px"
+    letterSpacing: "-0.5px",
+    boxShadow: "0 4px 12px rgba(196,91,26,0.35)"
   };
 
   const logoText = {
-    fontSize: "1.35rem",
+    fontSize: "1.4rem",
     fontWeight: "700",
-    color: "#1A2B52",
+    color: scrolled ? "#1A2B52" : "#FFFFFF",
     letterSpacing: "-0.3px",
-    fontFamily: "'Playfair Display', serif"
+    fontFamily: "'Playfair Display', serif",
+    transition: "color 0.35s ease"
   };
 
   const navLinks = {
     display: "flex",
     alignItems: "center",
-    gap: "36px"
+    gap: "8px"
   };
 
   const navLink = {
     fontSize: "0.875rem",
-    color: "#4A5568",
+    color: scrolled ? "#4A5568" : "rgba(255,255,255,0.85)",
     textDecoration: "none",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "500",
-    letterSpacing: "0.02em"
+    letterSpacing: "0.02em",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    transition: "all 0.2s ease"
+  };
+
+  const navBtns = {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
   };
 
   const loginBtn = {
-    padding: "9px 24px",
+    padding: "9px 22px",
     background: "transparent",
-    color: "#C45B1A",
-    border: "1.5px solid #C45B1A",
-    borderRadius: "8px",
+    color: scrolled ? "#C45B1A" : "rgba(255,255,255,0.9)",
+    border: scrolled ? "1.5px solid #C45B1A" : "1.5px solid rgba(255,255,255,0.4)",
+    borderRadius: "9px",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
     fontSize: "0.875rem",
     fontWeight: "600",
     letterSpacing: "0.02em",
-    transition: "all 0.2s ease"
+    transition: "all 0.25s ease"
+  };
+
+  const registerBtn = {
+    padding: "9px 22px",
+    background: scrolled ? "#C45B1A" : "rgba(255,255,255,0.15)",
+    color: "#FFFFFF",
+    border: scrolled ? "1.5px solid #C45B1A" : "1.5px solid rgba(255,255,255,0.3)",
+    borderRadius: "9px",
+    cursor: "pointer",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: "0.875rem",
+    fontWeight: "600",
+    letterSpacing: "0.02em",
+    backdropFilter: scrolled ? "none" : "blur(8px)",
+    transition: "all 0.25s ease"
   };
 
   /* ─── HERO ─── */
   const hero = {
-    minHeight: "92vh",
+    minHeight: "100vh",
     background: "#1A2B52",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
     overflow: "hidden",
-    padding: "60px 80px"
+    padding: "100px 80px 80px"
   };
 
   const heroPattern = {
     position: "absolute",
     top: 0, left: 0, right: 0, bottom: 0,
-    backgroundImage: `radial-gradient(circle at 20% 20%, rgba(196,91,26,0.12) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 80%, rgba(196,91,26,0.08) 0%, transparent 50%)`,
+    backgroundImage: `
+      radial-gradient(ellipse at 15% 50%, rgba(196,91,26,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 20%, rgba(196,91,26,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(26,43,82,0.5) 0%, transparent 60%)
+    `,
+    pointerEvents: "none"
+  };
+
+  const heroDots = {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)`,
+    backgroundSize: "40px 40px",
     pointerEvents: "none"
   };
 
   const heroContent = {
-    maxWidth: "720px",
+    maxWidth: "760px",
     textAlign: "center",
-    zIndex: 1
+    zIndex: 1,
+    animation: "fadeUp 0.9s cubic-bezier(0.4,0,0.2,1) both"
   };
 
   const heroBadge = {
-    display: "inline-block",
-    background: "rgba(196,91,26,0.15)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    background: "rgba(196,91,26,0.12)",
     color: "#E07A3A",
-    border: "1px solid rgba(196,91,26,0.3)",
+    border: "1px solid rgba(196,91,26,0.25)",
     borderRadius: "100px",
-    padding: "6px 18px",
-    fontSize: "0.8rem",
+    padding: "7px 20px",
+    fontSize: "0.78rem",
     fontFamily: "'DM Sans', sans-serif",
-    fontWeight: "500",
-    letterSpacing: "0.08em",
+    fontWeight: "600",
+    letterSpacing: "0.1em",
     textTransform: "uppercase",
-    marginBottom: "24px"
+    marginBottom: "28px",
+    backdropFilter: "blur(8px)"
+  };
+
+  const badgeDot = {
+    width: "6px",
+    height: "6px",
+    borderRadius: "50%",
+    background: "#E07A3A",
+    animation: "pulse 2s infinite"
   };
 
   const heroTitle = {
-    fontSize: "clamp(2.6rem, 5vw, 4rem)",
+    fontSize: "clamp(2.8rem, 5.5vw, 4.4rem)",
     fontWeight: "700",
     color: "#FFFFFF",
-    lineHeight: "1.15",
-    letterSpacing: "-1px",
-    marginBottom: "20px",
+    lineHeight: "1.12",
+    letterSpacing: "-1.5px",
+    marginBottom: "24px",
     fontFamily: "'Playfair Display', serif"
   };
 
   const heroSpan = {
-    color: "#E07A3A"
+    color: "#E07A3A",
+    position: "relative",
+    display: "inline-block"
   };
 
   const heroSubtitle = {
     fontSize: "1.1rem",
-    color: "rgba(255,255,255,0.7)",
-    lineHeight: "1.75",
-    maxWidth: "560px",
-    margin: "0 auto 40px auto",
+    color: "rgba(255,255,255,0.65)",
+    lineHeight: "1.8",
+    maxWidth: "580px",
+    margin: "0 auto 44px auto",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "400"
   };
 
   const heroCTA = {
     display: "flex",
-    gap: "16px",
+    gap: "14px",
     justifyContent: "center",
     flexWrap: "wrap"
   };
 
   const primaryBtn = {
-    padding: "14px 36px",
-    background: "#C45B1A",
+    padding: "15px 38px",
+    background: "linear-gradient(135deg, #C45B1A, #E07A3A)",
     color: "white",
     border: "none",
-    borderRadius: "10px",
+    borderRadius: "11px",
     fontSize: "0.95rem",
     fontWeight: "600",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
     letterSpacing: "0.02em",
-    boxShadow: "0 8px 24px rgba(196,91,26,0.35)",
-    transition: "all 0.2s ease"
+    boxShadow: "0 10px 32px rgba(196,91,26,0.45), 0 2px 8px rgba(0,0,0,0.15)",
+    transition: "all 0.25s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px"
   };
 
   const secondaryBtn = {
-    padding: "14px 36px",
-    background: "rgba(255,255,255,0.08)",
-    color: "white",
-    border: "1.5px solid rgba(255,255,255,0.25)",
-    borderRadius: "10px",
+    padding: "15px 38px",
+    background: "rgba(255,255,255,0.07)",
+    color: "rgba(255,255,255,0.9)",
+    border: "1.5px solid rgba(255,255,255,0.2)",
+    borderRadius: "11px",
     fontSize: "0.95rem",
     fontWeight: "500",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
     letterSpacing: "0.02em",
-    transition: "all 0.2s ease"
+    backdropFilter: "blur(10px)",
+    transition: "all 0.25s ease"
   };
 
   const heroStats = {
     display: "flex",
     justifyContent: "center",
-    gap: "60px",
-    marginTop: "72px",
+    gap: "0",
+    marginTop: "80px",
     paddingTop: "48px",
-    borderTop: "1px solid rgba(255,255,255,0.1)"
+    borderTop: "1px solid rgba(255,255,255,0.08)"
   };
 
   const heroStat = {
-    textAlign: "center"
+    textAlign: "center",
+    padding: "0 48px",
+    borderRight: "1px solid rgba(255,255,255,0.08)"
   };
 
   const heroStatNum = {
     display: "block",
-    fontSize: "2.2rem",
+    fontSize: "2.4rem",
     fontWeight: "700",
     color: "#E07A3A",
     fontFamily: "'Playfair Display', serif",
@@ -207,36 +278,72 @@ const Home = () => {
 
   const heroStatLabel = {
     display: "block",
-    fontSize: "0.8rem",
-    color: "rgba(255,255,255,0.55)",
+    fontSize: "0.78rem",
+    color: "rgba(255,255,255,0.45)",
     fontFamily: "'DM Sans', sans-serif",
-    fontWeight: "400",
-    letterSpacing: "0.05em",
+    fontWeight: "500",
+    letterSpacing: "0.08em",
     textTransform: "uppercase",
-    marginTop: "6px"
+    marginTop: "8px"
+  };
+
+  /* ─── TRUST BAR ─── */
+  const trustBar = {
+    background: "#F4F0E8",
+    padding: "20px 80px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "12px",
+    borderBottom: "1px solid #EDE9E2"
+  };
+
+  const trustText = {
+    fontSize: "0.8rem",
+    color: "#9CA3AF",
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: "500",
+    letterSpacing: "0.05em",
+    textTransform: "uppercase"
+  };
+
+  const trustBadges = {
+    display: "flex",
+    gap: "32px",
+    alignItems: "center"
+  };
+
+  const trustBadge = {
+    fontSize: "0.85rem",
+    color: "#6B7280",
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: "600",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px"
   };
 
   /* ─── FEATURES ─── */
   const featuresSection = {
-    padding: "100px 80px",
+    padding: "110px 80px",
     background: "#FAFAF8"
   };
 
   const sectionLabel = {
-    fontSize: "0.75rem",
-    fontWeight: "600",
+    fontSize: "0.72rem",
+    fontWeight: "700",
     color: "#C45B1A",
-    letterSpacing: "0.12em",
+    letterSpacing: "0.14em",
     textTransform: "uppercase",
     fontFamily: "'DM Sans', sans-serif",
     marginBottom: "12px"
   };
 
   const sectionTitle = {
-    fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
+    fontSize: "clamp(1.9rem, 3vw, 2.5rem)",
     fontWeight: "700",
     color: "#1A2B52",
-    letterSpacing: "-0.5px",
+    letterSpacing: "-0.6px",
     fontFamily: "'Playfair Display', serif",
     marginBottom: "16px",
     lineHeight: "1.2"
@@ -246,61 +353,70 @@ const Home = () => {
     fontSize: "1rem",
     color: "#6B7280",
     fontFamily: "'DM Sans', sans-serif",
-    maxWidth: "480px",
-    lineHeight: "1.7",
-    marginBottom: "56px"
+    maxWidth: "500px",
+    lineHeight: "1.75",
+    marginBottom: "60px"
   };
 
   const cardsGrid = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))",
     gap: "24px"
   };
 
   const featureCard = {
     background: "#FFFFFF",
     border: "1px solid #EDE9E2",
-    borderRadius: "16px",
-    padding: "36px 32px",
-    transition: "all 0.25s ease",
-    cursor: "default"
+    borderRadius: "20px",
+    padding: "40px 34px",
+    transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
+    cursor: "default",
+    position: "relative",
+    overflow: "hidden"
+  };
+
+  const cardAccent = {
+    position: "absolute",
+    top: 0, left: 0, right: 0,
+    height: "3px",
+    background: "linear-gradient(90deg, #C45B1A, #E07A3A)"
   };
 
   const cardIconWrap = {
-    width: "52px",
-    height: "52px",
-    borderRadius: "14px",
+    width: "56px",
+    height: "56px",
+    borderRadius: "16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "24px",
-    fontSize: "22px"
+    marginBottom: "26px",
+    fontSize: "24px"
   };
 
   const cardTitle = {
-    fontSize: "1.1rem",
+    fontSize: "1.15rem",
     fontWeight: "600",
     color: "#1A2B52",
     fontFamily: "'Playfair Display', serif",
-    marginBottom: "10px"
+    marginBottom: "12px"
   };
 
   const cardDesc = {
     fontSize: "0.9rem",
     color: "#6B7280",
     fontFamily: "'DM Sans', sans-serif",
-    lineHeight: "1.65"
+    lineHeight: "1.7"
   };
 
   const cardLink = {
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
-    marginTop: "20px",
+    marginTop: "22px",
     color: "#C45B1A",
     fontSize: "0.875rem",
     fontFamily: "'DM Sans', sans-serif",
-    fontWeight: "500",
+    fontWeight: "600",
     textDecoration: "none",
     letterSpacing: "0.02em"
   };
@@ -329,29 +445,29 @@ const Home = () => {
   /* ─── HIGHLIGHT STRIP ─── */
   const highlightStrip = {
     background: "#1A2B52",
-    padding: "80px",
+    padding: "100px 80px",
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: "80px",
+    gap: "100px",
     alignItems: "center"
   };
 
   const highlightTitle = {
-    fontSize: "clamp(1.8rem, 2.5vw, 2.4rem)",
+    fontSize: "clamp(1.9rem, 2.5vw, 2.6rem)",
     fontWeight: "700",
     color: "#FFFFFF",
     fontFamily: "'Playfair Display', serif",
-    lineHeight: "1.25",
+    lineHeight: "1.2",
     letterSpacing: "-0.5px",
-    marginBottom: "16px"
+    marginBottom: "18px"
   };
 
   const highlightDesc = {
     fontSize: "0.95rem",
-    color: "rgba(255,255,255,0.65)",
+    color: "rgba(255,255,255,0.6)",
     fontFamily: "'DM Sans', sans-serif",
-    lineHeight: "1.75",
-    marginBottom: "32px"
+    lineHeight: "1.8",
+    marginBottom: "36px"
   };
 
   const checkList = {
@@ -360,46 +476,48 @@ const Home = () => {
     margin: 0,
     display: "flex",
     flexDirection: "column",
-    gap: "12px"
+    gap: "14px"
   };
 
   const checkItem = {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    fontSize: "0.9rem",
+    gap: "14px",
+    fontSize: "0.92rem",
     color: "rgba(255,255,255,0.8)",
     fontFamily: "'DM Sans', sans-serif"
   };
 
   const checkDot = {
-    width: "20px",
-    height: "20px",
+    width: "22px",
+    height: "22px",
     borderRadius: "50%",
-    background: "#C45B1A",
+    background: "linear-gradient(135deg, #C45B1A, #E07A3A)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "11px",
     color: "white",
-    flexShrink: 0
+    flexShrink: 0,
+    boxShadow: "0 4px 12px rgba(196,91,26,0.4)"
   };
 
   const statsPanel = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: "20px"
+    gap: "16px"
   };
 
   const statCard = {
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: "14px",
-    padding: "28px 24px"
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "16px",
+    padding: "30px 26px",
+    transition: "all 0.25s ease"
   };
 
   const statCardNum = {
-    fontSize: "2.4rem",
+    fontSize: "2.6rem",
     fontWeight: "700",
     color: "#E07A3A",
     fontFamily: "'Playfair Display', serif",
@@ -407,63 +525,65 @@ const Home = () => {
   };
 
   const statCardLabel = {
-    fontSize: "0.8rem",
-    color: "rgba(255,255,255,0.5)",
+    fontSize: "0.78rem",
+    color: "rgba(255,255,255,0.45)",
     fontFamily: "'DM Sans', sans-serif",
     textTransform: "uppercase",
-    letterSpacing: "0.07em",
-    marginTop: "6px"
+    letterSpacing: "0.08em",
+    marginTop: "8px"
   };
 
   /* ─── TESTIMONIAL ─── */
   const testimonialSection = {
-    padding: "100px 80px",
+    padding: "110px 80px",
     background: "#F4F0E8",
     textAlign: "center"
   };
 
   const testimonialCard = {
-    maxWidth: "680px",
+    maxWidth: "700px",
     margin: "0 auto",
     background: "#FFFFFF",
     border: "1px solid #EDE9E2",
-    borderRadius: "20px",
-    padding: "52px",
-    position: "relative"
+    borderRadius: "24px",
+    padding: "60px",
+    position: "relative",
+    boxShadow: "0 24px 80px rgba(0,0,0,0.07)"
   };
 
   const testimonialQuote = {
-    fontSize: "1.15rem",
+    fontSize: "1.2rem",
     color: "#374151",
     fontFamily: "'Playfair Display', serif",
     fontStyle: "italic",
-    lineHeight: "1.8",
-    marginBottom: "32px"
+    lineHeight: "1.85",
+    marginBottom: "36px"
   };
 
   const testimonialAuthor = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "14px"
+    gap: "16px"
   };
 
   const authorAvatar = {
-    width: "44px",
-    height: "44px",
+    width: "48px",
+    height: "48px",
     borderRadius: "50%",
-    background: "#1A2B52",
+    background: "linear-gradient(135deg, #1A2B52, #2D4A7A)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     color: "white",
     fontSize: "14px",
     fontWeight: "600",
-    fontFamily: "'DM Sans', sans-serif"
+    fontFamily: "'DM Sans', sans-serif",
+    boxShadow: "0 4px 12px rgba(26,43,82,0.3)"
   };
 
   const authorName = {
-    fontSize: "0.9rem",
+    fontSize: "0.92rem",
     fontWeight: "600",
     color: "#1A2B52",
     fontFamily: "'DM Sans', sans-serif"
@@ -472,96 +592,110 @@ const Home = () => {
   const authorRole = {
     fontSize: "0.8rem",
     color: "#9CA3AF",
-    fontFamily: "'DM Sans', sans-serif"
+    fontFamily: "'DM Sans', sans-serif",
+    marginTop: "2px"
   };
 
   /* ─── CTA BANNER ─── */
   const ctaBanner = {
-    background: "linear-gradient(135deg, #C45B1A 0%, #E07A3A 100%)",
-    padding: "80px",
+    background: "linear-gradient(135deg, #C45B1A 0%, #B8501A 40%, #E07A3A 100%)",
+    padding: "90px 80px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     gap: "40px",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    position: "relative",
+    overflow: "hidden"
+  };
+
+  const ctaOverlay = {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundImage: `radial-gradient(circle at 10% 50%, rgba(255,255,255,0.07) 0%, transparent 50%),
+                      radial-gradient(circle at 90% 50%, rgba(0,0,0,0.1) 0%, transparent 50%)`,
+    pointerEvents: "none"
   };
 
   const ctaTitle = {
-    fontSize: "clamp(1.5rem, 2.5vw, 2rem)",
+    fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)",
     fontWeight: "700",
     color: "#FFFFFF",
     fontFamily: "'Playfair Display', serif",
     lineHeight: "1.25",
-    maxWidth: "480px",
-    letterSpacing: "-0.3px"
+    maxWidth: "520px",
+    letterSpacing: "-0.4px",
+    zIndex: 1
   };
 
   const ctaWhiteBtn = {
-    padding: "14px 36px",
+    padding: "15px 38px",
     background: "#FFFFFF",
     color: "#C45B1A",
     border: "none",
-    borderRadius: "10px",
+    borderRadius: "11px",
     fontSize: "0.95rem",
     fontWeight: "700",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
     letterSpacing: "0.02em",
     whiteSpace: "nowrap",
-    flexShrink: 0
+    flexShrink: 0,
+    zIndex: 1,
+    boxShadow: "0 8px 24px rgba(0,0,0,0.15)"
   };
 
   /* ─── FOOTER ─── */
   const footer = {
     background: "#0F1B35",
     color: "white",
-    padding: "72px 80px 0"
+    padding: "80px 80px 0"
   };
 
   const footerGrid = {
     display: "grid",
     gridTemplateColumns: "2fr 1fr 1fr 1fr",
     gap: "60px",
-    marginBottom: "56px"
+    marginBottom: "60px"
   };
 
   const footerBrand = {
     fontSize: "0.875rem",
-    color: "rgba(255,255,255,0.5)",
+    color: "rgba(255,255,255,0.45)",
     fontFamily: "'DM Sans', sans-serif",
-    lineHeight: "1.7",
-    marginTop: "14px",
-    maxWidth: "260px"
+    lineHeight: "1.75",
+    marginTop: "16px",
+    maxWidth: "270px"
   };
 
   const footerHeading = {
-    fontSize: "0.75rem",
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.4)",
-    letterSpacing: "0.1em",
+    fontSize: "0.72rem",
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.35)",
+    letterSpacing: "0.12em",
     textTransform: "uppercase",
     fontFamily: "'DM Sans', sans-serif",
-    marginBottom: "18px"
+    marginBottom: "20px"
   };
 
   const footerLink = {
     display: "block",
     fontSize: "0.875rem",
-    color: "rgba(255,255,255,0.65)",
+    color: "rgba(255,255,255,0.6)",
     fontFamily: "'DM Sans', sans-serif",
     textDecoration: "none",
-    marginBottom: "10px",
+    marginBottom: "12px",
     transition: "color 0.2s"
   };
 
   const footerBottom = {
-    borderTop: "1px solid rgba(255,255,255,0.08)",
-    padding: "24px 0",
+    borderTop: "1px solid rgba(255,255,255,0.07)",
+    padding: "26px 0",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     fontSize: "0.8rem",
-    color: "rgba(255,255,255,0.35)",
+    color: "rgba(255,255,255,0.3)",
     fontFamily: "'DM Sans', sans-serif"
   };
 
@@ -572,13 +706,53 @@ const Home = () => {
 
   return (
     <>
-      {/* Google Fonts */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         a { text-decoration: none; }
-        button:hover { opacity: 0.88; transform: translateY(-1px); }
-        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(0,0,0,0.09); border-color: #D4C8B8; }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .nav-link-item:hover {
+          background: rgba(196,91,26,0.08) !important;
+          color: #C45B1A !important;
+        }
+        .nav-login-btn:hover {
+          background: rgba(196,91,26,0.06) !important;
+        }
+        .nav-register-btn:hover {
+          opacity: 0.88;
+          transform: translateY(-1px);
+          box-shadow: 0 8px 20px rgba(196,91,26,0.35);
+        }
+        .primary-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 16px 40px rgba(196,91,26,0.5) !important;
+        }
+        .secondary-btn:hover {
+          background: rgba(255,255,255,0.14) !important;
+          border-color: rgba(255,255,255,0.35) !important;
+        }
+        .feature-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 24px 64px rgba(0,0,0,0.1);
+          border-color: #D4C8B8;
+        }
+        .stat-card:hover {
+          background: rgba(255,255,255,0.09) !important;
+          border-color: rgba(255,255,255,0.15) !important;
+        }
+        .footer-link:hover { color: rgba(255,255,255,0.9) !important; }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.2) !important; }
+
+        .hero-stat:last-child { border-right: none !important; }
       `}</style>
 
       <div style={page}>
@@ -591,22 +765,31 @@ const Home = () => {
           </div>
 
           <div style={navLinks}>
-            <a href="#features" style={navLink}>Features</a>
-            <a href="#about" style={navLink}>About</a>
-            <a href="#contact" style={navLink}>Contact</a>
+            <a href="#features" style={navLink} className="nav-link-item">Features</a>
+            <a href="#about" style={navLink} className="nav-link-item">About</a>
+            <a href="#contact" style={navLink} className="nav-link-item">Contact</a>
           </div>
 
-          <Link to="/login">
-            <button style={loginBtn}>Login</button>
-          </Link>
+          <div style={navBtns}>
+            <Link to="/login">
+              <button style={loginBtn} className="nav-login-btn">Login</button>
+            </Link>
+            <Link to="/register">
+              <button style={registerBtn} className="nav-register-btn">Register</button>
+            </Link>
+          </div>
         </nav>
 
         {/* ── HERO ── */}
         <section style={hero}>
           <div style={heroPattern} />
+          <div style={heroDots} />
 
           <div style={heroContent}>
-            <div style={heroBadge}>University Management Platform</div>
+            <div style={heroBadge}>
+              <span style={badgeDot}></span>
+              University Management Platform
+            </div>
 
             <h1 style={heroTitle}>
               The Smarter Way to
@@ -622,27 +805,38 @@ const Home = () => {
 
             <div style={heroCTA}>
               <Link to="/login">
-                <button style={primaryBtn}>Access Portal →</button>
+                <button style={primaryBtn} className="primary-btn">
+                  Access Portal
+                  <span>→</span>
+                </button>
               </Link>
-              <button style={secondaryBtn}>Watch Demo</button>
+              <button style={secondaryBtn} className="secondary-btn">▶ Watch Demo</button>
             </div>
 
             <div style={heroStats}>
-              <div style={heroStat}>
-                <span style={heroStatNum}>5,000+</span>
-                <span style={heroStatLabel}>Students</span>
-              </div>
-              <div style={heroStat}>
-                <span style={heroStatNum}>50+</span>
-                <span style={heroStatLabel}>Courses</span>
-              </div>
-              <div style={heroStat}>
-                <span style={heroStatNum}>100+</span>
-                <span style={heroStatLabel}>Faculty</span>
-              </div>
+              {[
+                { num: "5,000+", label: "Students" },
+                { num: "50+", label: "Courses" },
+                { num: "100+", label: "Faculty" }
+              ].map((s, i) => (
+                <div key={i} style={i < 2 ? heroStat : { ...heroStat, borderRight: "none" }} className="hero-stat">
+                  <span style={heroStatNum}>{s.num}</span>
+                  <span style={heroStatLabel}>{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+
+        {/* ── TRUST BAR ── */}
+        <div style={trustBar}>
+          <span style={trustText}>Trusted by</span>
+          <div style={trustBadges}>
+            {["🏛️ Top Universities", "🎓 10K+ Students", "✅ ISO Certified", "🔒 GDPR Compliant"].map((b, i) => (
+              <span key={i} style={trustBadge}>{b}</span>
+            ))}
+          </div>
+        </div>
 
         {/* ── FEATURES ── */}
         <section id="features" style={featuresSection}>
@@ -655,11 +849,8 @@ const Home = () => {
 
           <div style={cardsGrid}>
             {features.map((f, i) => (
-              <div
-                key={i}
-                className="feature-card"
-                style={featureCard}
-              >
+              <div key={i} className="feature-card" style={featureCard}>
+                <div style={cardAccent} />
                 <div style={{ ...cardIconWrap, background: f.iconBg }}>
                   {f.icon}
                 </div>
@@ -684,7 +875,12 @@ const Home = () => {
             </p>
 
             <ul style={checkList}>
-              {["Real-time academic progress tracking", "Role-based dashboards for all users", "Secure data management & compliance", "Easy enrollment and course handling"].map((item, i) => (
+              {[
+                "Real-time academic progress tracking",
+                "Role-based dashboards for all users",
+                "Secure data management & compliance",
+                "Easy enrollment and course handling"
+              ].map((item, i) => (
                 <li key={i} style={checkItem}>
                   <span style={checkDot}>✓</span>
                   {item}
@@ -700,7 +896,7 @@ const Home = () => {
               { num: "24/7", label: "System Uptime" },
               { num: "10+", label: "Departments" }
             ].map((s, i) => (
-              <div key={i} style={statCard}>
+              <div key={i} style={statCard} className="stat-card">
                 <div style={statCardNum}>{s.num}</div>
                 <div style={statCardLabel}>{s.label}</div>
               </div>
@@ -711,19 +907,19 @@ const Home = () => {
         {/* ── TESTIMONIAL ── */}
         <section style={testimonialSection}>
           <div style={sectionLabel}>Testimonials</div>
-          <h2 style={{ ...sectionTitle, textAlign: "center", marginBottom: "48px" }}>
+          <h2 style={{ ...sectionTitle, textAlign: "center", marginBottom: "52px" }}>
             Trusted Across Campus
           </h2>
 
           <div style={testimonialCard}>
-            <div style={{ fontSize: "48px", color: "#E07A3A", lineHeight: "1", marginBottom: "20px", fontFamily: "serif" }}>"</div>
+            <div style={{ fontSize: "56px", color: "#E07A3A", lineHeight: "1", marginBottom: "20px", fontFamily: "serif" }}>"</div>
             <p style={testimonialQuote}>
               EduTrack transformed how our university operates. Managing 5,000 students
               used to be chaos — now everything is streamlined, transparent, and fast.
             </p>
             <div style={testimonialAuthor}>
               <div style={authorAvatar}>VP</div>
-              <div>
+              <div style={{ textAlign: "left" }}>
                 <div style={authorName}>Dr. Vikram Patil</div>
                 <div style={authorRole}>Vice Chancellor, EduTrack University</div>
               </div>
@@ -733,9 +929,10 @@ const Home = () => {
 
         {/* ── CTA BANNER ── */}
         <section style={ctaBanner}>
+          <div style={ctaOverlay} />
           <h2 style={ctaTitle}>Ready to Transform Your University Management?</h2>
           <Link to="/login">
-            <button style={ctaWhiteBtn}>Get Started Today</button>
+            <button style={ctaWhiteBtn} className="cta-btn">Get Started Today →</button>
           </Link>
         </section>
 
@@ -743,40 +940,41 @@ const Home = () => {
         <footer id="contact" style={footer}>
           <div style={footerGrid}>
             <div>
-              <div style={{ ...navLogo, marginBottom: "0" }}>
-                <div style={{ ...logoMark, background: "#C45B1A" }}>E</div>
+              <div style={{ ...navLogo }}>
+                <div style={{ ...logoMark }}>E</div>
                 <span style={{ ...logoText, color: "white" }}>EduTrack</span>
               </div>
               <p style={footerBrand}>
                 A modern university management system built for students,
-                faculty, and administrators.
+                faculty, and administrators across the globe.
               </p>
             </div>
 
             <div>
               <div style={footerHeading}>Platform</div>
               {["Students", "Faculty", "Admin", "Reports"].map(l => (
-                <a key={l} href="#" style={footerLink}>{l}</a>
+                <a key={l} href="#" style={footerLink} className="footer-link">{l}</a>
               ))}
             </div>
 
             <div>
               <div style={footerHeading}>Support</div>
               {["Help Center", "Documentation", "Contact Us", "System Status"].map(l => (
-                <a key={l} href="#" style={footerLink}>{l}</a>
+                <a key={l} href="#" style={footerLink} className="footer-link">{l}</a>
               ))}
             </div>
 
             <div>
               <div style={footerHeading}>Legal</div>
               {["Privacy Policy", "Terms of Service", "Cookie Policy", "Accessibility"].map(l => (
-                <a key={l} href="#" style={footerLink}>{l}</a>
+                <a key={l} href="#" style={footerLink} className="footer-link">{l}</a>
               ))}
             </div>
           </div>
 
           <div style={footerBottom}>
             <span>© 2026 EduTrack University Portal. All Rights Reserved.</span>
+             <span>developer by g-one</span>
             <div style={divider}>
               <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Privacy</a>
               <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Terms</a>

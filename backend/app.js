@@ -10,12 +10,19 @@ const gradeController =require('./controllers/gradeController');
 const attendanceController = require('./controllers/attendanceController');
 const reportController = require('./controllers/reportController');
 const studentController =require('./controllers/studentController');
+const upload = require('./middleware/uploadMiddleware');
+const http = require('http');
+const { Server } = require('socket.io');
+
+
+
 
 const app = express();
 connectDB(); // Database call
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 //see only logged user //
 app.get('/api/courses', protect, courseController.getAllCourses);
@@ -52,5 +59,38 @@ app.get('/api/student/my-attendance',protect,studentController.getMyAttendance);
 app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
 
+//forgot - reset -verify//
+app.post('/api/auth/forgot-password', authController.forgotPassword);
+app.post('/api/auth/verify-otp', authController.verifyOTP);
+app.post('/api/auth/reset-password', authController.resetPassword);
+app.get('/api/auth/me', protect, authController.getMe);
+app.put('/api/student/profile', protect, studentController.updateProfile);
+//profile 
+app.put('/api/student/profile-picture', protect, upload.single('profileImage'), studentController.updateProfilePicture);
+app.get('/api/auth/test', (req, res) => {
+    res.send("Auth path is working!");
+});
+
+
+// email notification 
+// ... existing imports ...
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "http://localhost:3000" }
+});
+app.set('socketio', io);
+
+io.on('connection', (socket) => {
+    console.log('✅ Socket Connected:', socket.id);
+    socket.on('join_room', (userId) => {
+        socket.join(userId);
+        console.log(`👤 User joined room: ${userId}`);
+    });
+});
+
+// Static folder and other routes...
+app.use('/uploads', express.static('uploads'));
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// APP.LISTEN KO BADAL KAR SERVER.LISTEN KAREIN
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

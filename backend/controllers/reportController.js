@@ -3,7 +3,7 @@ const Grade = require('../models/Grade');
 
 exports.getFullReport = async (req, res) => {
   try {
-    // Ye query sab kuch join (populate) kar degi
+    //join
     const reports = await Grade.find()
       .populate({
         path: 'enrollment',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
 
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,8 +13,7 @@ const Login = () => {
     try {
       // Backend Login API call
       const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      
-      // Token aur User role ko save karein
+     
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('role', res.data.user.role);
       localStorage.setItem('userName', res.data.user.name);
@@ -231,7 +231,21 @@ const Login = () => {
           >
             Sign In
           </button>
+         
         </form>
+
+          <Link to="/forgot-password" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: '600' ,marginTop:'18px'}}>
+            Forgot password?
+          </Link>
+      <p style={{ color: '#94a3b8', fontSize: '14px', textAlign: 'center', marginTop: '24px' }}>
+          Don't have an account? {' '}
+          <Link to="/register" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: '600' }}>
+            Create one here
+          </Link>
+        </p>
+     
+         
+
 
         {/* Footer text */}
         <p style={{
