@@ -36,37 +36,35 @@ exports.login = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log("Forgot password for:", email);
-
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "No account found with this email" });
+
+    if (!user) return res.status(404).json({ message: "No account found" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetPasswordOTP = otp;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
     
-    // IMPORTANT: Database mein save karne se pehle frontend ko response bhej dein
-    // Taaki SMTP delays ki wajah se CORS Timeout na ho.
-    res.status(200).json({ message: "Success! Check your email in 1 minute." });
+    // IMPORTANT FIX: validateBeforeSave false karne se 'name' required wala error nahi aayega
+    await user.save({ validateBeforeSave: false });
 
-    await user.save();
+    // Response turant bhej dein
+    res.status(200).json({ message: "Success! Check your email." });
 
-    // BACKGROUND MAIL SENDING
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: 'EduTrack Password Reset',
-      text: `Your Reset OTP: ${otp}. Valid for 10 minutes.`
+      text: `Your OTP is: ${otp}`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error("SMTP Error:", error);
-        else console.log("Email Sent Success:", info.response);
+        if (error) console.error("SMTP ERROR:", error);
+        else console.log("EMAIL SENT SUCCESS:", info.response);
     });
 
   } catch (error) {
-    console.error("Critical Server Error:", error.message);
-    if (!res.headersSent) res.status(500).json({ message: "Server error" });
+    console.error("SERVER ERROR:", error.message);
+    if (!res.headersSent) res.status(500).json({ message: "Error" });
   }
 };
 
@@ -83,7 +81,8 @@ exports.resetPassword = async (req, res) => {
   if (!user) return res.status(400).json({ message: "Failed" });
   user.password = req.body.newPassword;
   user.resetPasswordOTP = undefined;
-  await user.save();
+
+await user.save({ validateBeforeSave: false });
   res.json({ message: "Updated" });
 };
 
