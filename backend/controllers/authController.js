@@ -57,10 +57,46 @@ exports.forgotPassword = async (req, res) => {
       text: `Your OTP is: ${otp}`
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error("SMTP ERROR:", error);
-        else console.log("EMAIL SENT SUCCESS:", info.response);
-    });
+   exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ message: "No account found" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordOTP = otp;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    
+    // IMPORTANT FIX: validateBeforeSave false karne se 'name' required wala error nahi aayega
+    await user.save({ validateBeforeSave: false });
+
+    // Response turant bhej dein
+    res.status(200).json({ message: "Success! Check your email." });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'EduTrack Password Reset',
+      text: `Your OTP is: ${otp}`
+    };
+
+
+transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+        // AGAR YE TERMINAL MEIN DIKHA, TOH PASSWROD YA SMTP KI GALTI HAI
+        console.error("❌ NODEMAILER ERROR:", error.message);
+    } else {
+        // AGAR YE DIKHA, TOH OTP 100% PAHUNCH GAYA HAI
+        console.log("✅ EMAIL SENT SUCCESS! ID:", info.messageId);
+    }
+});
+
+  } catch (error) {
+    console.error("SERVER ERROR:", error.message);
+    if (!res.headersSent) res.status(500).json({ message: "Error" });
+  }
+};
 
   } catch (error) {
     console.error("SERVER ERROR:", error.message);
