@@ -23,9 +23,10 @@ connectDB(); // Database call
 // backend/app.js
 
 app.use(cors({
-    origin: "https://edu-tracker-rho.vercel.app", // Testing ke liye "*" (anywhere) theek hai, lekin professional ke liye Vercel link daalein
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+  origin: "https://edu-tracker-rho.vercel.app", 
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
