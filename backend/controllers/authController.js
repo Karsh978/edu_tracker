@@ -54,16 +54,10 @@ exports.forgotPassword = async (req, res) => {
 
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465, 
-  secure: true, 
+  service: 'gmail', 
   auth: {
-    user: process.env.EMAIL_USER,
+    user: process.env.EMAIL_USER, 
     pass: process.env.EMAIL_PASS, 
-  },
-  tls: {
-   
-    rejectUnauthorized: false
   }
 });
 
@@ -74,7 +68,7 @@ const transporter = nodemailer.createTransport({
       text: `Your OTP is ${otp}`
     };
 
-    // Yahan console.log check karein ki mail ja raha hai ya nahi
+    
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
           console.log("Nodemailer Error:", error);
