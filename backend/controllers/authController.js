@@ -2,9 +2,17 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const crypto = require('crypto');
 
-// Register User
+// --- 1. Nodemailer Transporter Configuration (Render Friendly) ---
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // Google ka inbuilt preset use karein
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS // Bina space wala App Password
+  }
+});
+
+// --- 2. User Registration ---
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -15,94 +23,84 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login User
+// --- 3. User Login ---
 exports.login = async (req, res) => {
+  try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-        // MUST match process.env.JWT_SECRET
-        const token = jwt.sign(
-            { id: user._id, role: user.role }, 
-            process.env.JWT_SECRET || "my_super_secret_key_123", 
-            { expiresIn: '1d' }
-        );
-        res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
+      const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET || "my_super_secret_key_123",
+        { expiresIn: '1d' }
+      );
+      res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
     } else {
-        res.status(401).json({ message: "Invalid Credentials" });
+      res.status(401).json({ message: "Invalid Credentials" });
     }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
-// 1. FORGOT PASSWORD (OTP Bhejna)
-// controllers/authController.js ke andar change karein:
-
+// --- 4. Forgot Password (OTP Generation & Sending) ---
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log("Forgot Password Request for:", email);
+    console.log("Password Reset requested for:", email);
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found with this email" });
 
+    // 6-digit OTP Generate karein
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // OTP aur Expiry database mein save karein (10 mins valid)
     user.resetPasswordOTP = otp;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    console.log("OTP Generated and Saved:", otp);
-
-
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail', 
-  auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS, 
-  }
-});
+    console.log("OTP successfully saved in DB");
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user.email,
-      subject: 'Password Reset OTP',
-      text: `Your OTP is ${otp}`
+      subject: 'EduTrack Password Reset OTP',
+      text: `Aapka password reset OTP hai: ${otp}. Ye sirf 10 minutes ke liye valid hai.`
     };
 
+    // Nodemailer se email bhejie
+    await transporter.sendMail(mailOptions);
     
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-          console.log("Nodemailer Error:", error);
-          return res.status(500).json({ message: "Mail sending failed", error: error.message });
-      } else {
-          console.log("Email sent: " + info.response);
-          res.json({ message: "OTP sent to your email!" });
-      }
-    });
+    console.log("Email sent successfully!");
+    res.json({ message: "OTP successfully sent to your email!" });
 
   } catch (error) {
-    console.error("General Error:", error);
+    console.error("Nodemailer Detail Error:", error.message);
+    res.status(500).json({ error: "Server busy. Could not send email: " + error.message });
+  }
+};
+
+// --- 5. Verify OTP ---
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({
+      email,
+      resetPasswordOTP: otp,
+      resetPasswordExpires: { $gt: Date.now() } // Check if not expired
+    });
+
+    if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
+
+    res.json({ message: "OTP Verified! Proceed to reset password." });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-// 2. VERIFY OTP
-exports.verifyOTP = async (req, res) => {
-  const { email, otp } = req.body;
-  const user = await User.findOne({ 
-    email, 
-    resetPasswordOTP: otp, 
-    resetPasswordExpires: { $gt: Date.now() } 
-  });
 
-  if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
-
-  res.json({ message: "OTP Verified! You can now reset your password." });
-};
-
-
-// controllers/authController.js ke andar
-// controllers/authController.js ke andar niche ye add karein:
-
-// controllers/authController.js ke andar:
+// --- 6. Get Current User Data ---
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -113,22 +111,31 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// 3. RESET PASSWORD (New Password Save)
+// --- 7. Reset Password (Final Step) ---
 exports.resetPassword = async (req, res) => {
-  const { email, otp, newPassword } = req.body;
-  const user = await User.findOne({ 
-    email, 
-    resetPasswordOTP: otp, 
-    resetPasswordExpires: { $gt: Date.now() } 
-  });
+  try {
+    const { email, otp, newPassword } = req.body;
+    
+    const user = await User.findOne({
+      email,
+      resetPasswordOTP: otp,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
 
-  if (!user) return res.status(400).json({ message: "Request failed, try again." });
+    if (!user) return res.status(400).json({ message: "Request failed, please try again." });
 
-  // Naya password hash karke save karein
-  user.password = newPassword; // Pre-save hook apne aap hash kar dega
-  user.resetPasswordOTP = undefined; // OTP clear kar dein
-  user.resetPasswordExpires = undefined;
-  await user.save();
+    // Password Update karein
+    user.password = newPassword; 
+    // Reset fields ko clear karein
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordExpires = undefined;
+    
+    await user.save(); // User Model ka 'pre-save' hook automatically hash kar dega
 
-  res.json({ message: "Password updated successfully!" });
+    console.log("Password Reset complete for:", email);
+    res.json({ message: "Password updated successfully! You can login now." });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
