@@ -51,13 +51,21 @@ exports.forgotPassword = async (req, res) => {
 
     console.log("OTP Generated and Saved:", otp);
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465, 
+  secure: true, 
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, 
+  },
+  tls: {
+   
+    rejectUnauthorized: false
+  }
+});
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
