@@ -2,13 +2,23 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 
 // --- 1. Nodemailer Transporter Configuration (Render Friendly) ---
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Google ka inbuilt preset use karein
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, 
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS // Bina space wala App Password
+    pass: process.env.EMAIL_PASS
+  },
+  connectionTimeout: 10000, 
+  greetingTimeout: 5000,
+  socketTimeout: 10000,
+  tls: {
+    rejectUnauthorized: false 
   }
 });
 
