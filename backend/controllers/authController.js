@@ -7,19 +7,12 @@ dns.setDefaultResultOrder('ipv4first');
 
 // --- 1. Nodemailer Transporter Configuration (Render Friendly) ---
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, 
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  connectionTimeout: 10000, 
-  greetingTimeout: 5000,
-  socketTimeout: 10000,
-  tls: {
-    rejectUnauthorized: false 
-  }
+  pool: true
 });
 
 // --- 2. User Registration ---
@@ -72,23 +65,26 @@ exports.forgotPassword = async (req, res) => {
     await user.save();
 
     console.log("OTP successfully saved in DB");
+    res.status(200).json({ message: "Request received! If user exists, OTP will arrive shortly." });
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: user.email,
-      subject: 'EduTrack Password Reset OTP',
-      text: `Aapka password reset OTP hai: ${otp}. Ye sirf 10 minutes ke liye valid hai.`
+      subject: 'EduTrack OTP',
+      text: `Your OTP is: ${otp}`
     };
 
     // Nodemailer se email bhejie
-    await transporter.sendMail(mailOptions);
-    
-    console.log("Email sent successfully!");
-    res.json({ message: "OTP successfully sent to your email!" });
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) console.error("Email Error (Background):", error);
+        else console.log("Email Sent Success (Background):", info.response);
+    });
 
   } catch (error) {
-    console.error("Nodemailer Detail Error:", error.message);
-    res.status(500).json({ error: "Server busy. Could not send email: " + error.message });
+    console.error("General Error:", error);
+    if(!res.headersSent) {
+        res.status(500).json({ error: "Something went wrong" });
+    }
   }
 };
 
