@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,8 +25,8 @@ const Home = () => {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: scrolled ? "0 80px" : "0 80px",
-    height: scrolled ? "64px" : "80px",
+    padding: scrolled ? "0 clamp(20px, 5vw, 80px)" : "0 clamp(20px, 5vw, 80px)",
+    height: scrolled ? "60px" : "72px",
     background: scrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.0)",
     backdropFilter: scrolled ? "blur(20px)" : "none",
     borderBottom: scrolled ? "1px solid rgba(232,228,221,0.8)" : "1px solid rgba(255,255,255,0.1)",
@@ -45,8 +46,8 @@ const Home = () => {
   };
 
   const logoMark = {
-    width: "40px",
-    height: "40px",
+    width: "38px",
+    height: "38px",
     background: "linear-gradient(135deg, #C45B1A 0%, #E07A3A 100%)",
     borderRadius: "12px",
     display: "flex",
@@ -54,14 +55,15 @@ const Home = () => {
     justifyContent: "center",
     color: "white",
     fontWeight: "700",
-    fontSize: "17px",
+    fontSize: "16px",
     fontFamily: "'Playfair Display', serif",
     letterSpacing: "-0.5px",
-    boxShadow: "0 4px 12px rgba(196,91,26,0.35)"
+    boxShadow: "0 4px 12px rgba(196,91,26,0.35)",
+    flexShrink: 0
   };
 
   const logoText = {
-    fontSize: "1.4rem",
+    fontSize: "1.3rem",
     fontWeight: "700",
     color: scrolled ? "#1A2B52" : "#FFFFFF",
     letterSpacing: "-0.3px",
@@ -72,7 +74,7 @@ const Home = () => {
   const navLinks = {
     display: "flex",
     alignItems: "center",
-    gap: "8px"
+    gap: "4px"
   };
 
   const navLink = {
@@ -82,7 +84,7 @@ const Home = () => {
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "500",
     letterSpacing: "0.02em",
-    padding: "8px 16px",
+    padding: "8px 14px",
     borderRadius: "8px",
     transition: "all 0.2s ease"
   };
@@ -90,11 +92,11 @@ const Home = () => {
   const navBtns = {
     display: "flex",
     alignItems: "center",
-    gap: "10px"
+    gap: "8px"
   };
 
   const loginBtn = {
-    padding: "9px 22px",
+    padding: "8px 18px",
     background: "transparent",
     color: scrolled ? "#C45B1A" : "rgba(255,255,255,0.9)",
     border: scrolled ? "1.5px solid #C45B1A" : "1.5px solid rgba(255,255,255,0.4)",
@@ -108,7 +110,7 @@ const Home = () => {
   };
 
   const registerBtn = {
-    padding: "9px 22px",
+    padding: "8px 18px",
     background: scrolled ? "#C45B1A" : "rgba(255,255,255,0.15)",
     color: "#FFFFFF",
     border: scrolled ? "1.5px solid #C45B1A" : "1.5px solid rgba(255,255,255,0.3)",
@@ -131,7 +133,7 @@ const Home = () => {
     justifyContent: "center",
     position: "relative",
     overflow: "hidden",
-    padding: "100px 80px 80px"
+    padding: "100px clamp(20px, 6vw, 80px) 80px"
   };
 
   const heroPattern = {
@@ -155,6 +157,7 @@ const Home = () => {
 
   const heroContent = {
     maxWidth: "760px",
+    width: "100%",
     textAlign: "center",
     zIndex: 1,
     animation: "fadeUp 0.9s cubic-bezier(0.4,0,0.2,1) both"
@@ -168,13 +171,13 @@ const Home = () => {
     color: "#E07A3A",
     border: "1px solid rgba(196,91,26,0.25)",
     borderRadius: "100px",
-    padding: "7px 20px",
-    fontSize: "0.78rem",
+    padding: "7px 18px",
+    fontSize: "0.72rem",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "600",
     letterSpacing: "0.1em",
     textTransform: "uppercase",
-    marginBottom: "28px",
+    marginBottom: "24px",
     backdropFilter: "blur(8px)"
   };
 
@@ -183,16 +186,17 @@ const Home = () => {
     height: "6px",
     borderRadius: "50%",
     background: "#E07A3A",
-    animation: "pulse 2s infinite"
+    animation: "pulse 2s infinite",
+    flexShrink: 0
   };
 
   const heroTitle = {
-    fontSize: "clamp(2.8rem, 5.5vw, 4.4rem)",
+    fontSize: "clamp(2.2rem, 6vw, 4.4rem)",
     fontWeight: "700",
     color: "#FFFFFF",
     lineHeight: "1.12",
-    letterSpacing: "-1.5px",
-    marginBottom: "24px",
+    letterSpacing: "-1px",
+    marginBottom: "20px",
     fontFamily: "'Playfair Display', serif"
   };
 
@@ -203,29 +207,29 @@ const Home = () => {
   };
 
   const heroSubtitle = {
-    fontSize: "1.1rem",
+    fontSize: "clamp(0.9rem, 2vw, 1.1rem)",
     color: "rgba(255,255,255,0.65)",
     lineHeight: "1.8",
-    maxWidth: "580px",
-    margin: "0 auto 44px auto",
+    maxWidth: "560px",
+    margin: "0 auto 36px auto",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "400"
   };
 
   const heroCTA = {
     display: "flex",
-    gap: "14px",
+    gap: "12px",
     justifyContent: "center",
     flexWrap: "wrap"
   };
 
   const primaryBtn = {
-    padding: "15px 38px",
+    padding: "13px clamp(24px, 4vw, 38px)",
     background: "linear-gradient(135deg, #C45B1A, #E07A3A)",
     color: "white",
     border: "none",
     borderRadius: "11px",
-    fontSize: "0.95rem",
+    fontSize: "0.92rem",
     fontWeight: "600",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
@@ -238,12 +242,12 @@ const Home = () => {
   };
 
   const secondaryBtn = {
-    padding: "15px 38px",
+    padding: "13px clamp(24px, 4vw, 38px)",
     background: "rgba(255,255,255,0.07)",
     color: "rgba(255,255,255,0.9)",
     border: "1.5px solid rgba(255,255,255,0.2)",
     borderRadius: "11px",
-    fontSize: "0.95rem",
+    fontSize: "0.92rem",
     fontWeight: "500",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
@@ -256,20 +260,21 @@ const Home = () => {
     display: "flex",
     justifyContent: "center",
     gap: "0",
-    marginTop: "80px",
-    paddingTop: "48px",
-    borderTop: "1px solid rgba(255,255,255,0.08)"
+    marginTop: "60px",
+    paddingTop: "40px",
+    borderTop: "1px solid rgba(255,255,255,0.08)",
+    flexWrap: "wrap"
   };
 
   const heroStat = {
     textAlign: "center",
-    padding: "0 48px",
+    padding: "16px clamp(20px, 4vw, 48px)",
     borderRight: "1px solid rgba(255,255,255,0.08)"
   };
 
   const heroStatNum = {
     display: "block",
-    fontSize: "2.4rem",
+    fontSize: "clamp(1.8rem, 4vw, 2.4rem)",
     fontWeight: "700",
     color: "#E07A3A",
     fontFamily: "'Playfair Display', serif",
@@ -278,7 +283,7 @@ const Home = () => {
 
   const heroStatLabel = {
     display: "block",
-    fontSize: "0.78rem",
+    fontSize: "0.72rem",
     color: "rgba(255,255,255,0.45)",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "500",
@@ -290,16 +295,17 @@ const Home = () => {
   /* ─── TRUST BAR ─── */
   const trustBar = {
     background: "#F4F0E8",
-    padding: "20px 80px",
+    padding: "18px clamp(20px, 5vw, 80px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     gap: "12px",
-    borderBottom: "1px solid #EDE9E2"
+    borderBottom: "1px solid #EDE9E2",
+    flexWrap: "wrap"
   };
 
   const trustText = {
-    fontSize: "0.8rem",
+    fontSize: "0.75rem",
     color: "#9CA3AF",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "500",
@@ -309,12 +315,14 @@ const Home = () => {
 
   const trustBadges = {
     display: "flex",
-    gap: "32px",
-    alignItems: "center"
+    gap: "clamp(12px, 3vw, 32px)",
+    alignItems: "center",
+    flexWrap: "wrap",
+    justifyContent: "center"
   };
 
   const trustBadge = {
-    fontSize: "0.85rem",
+    fontSize: "0.82rem",
     color: "#6B7280",
     fontFamily: "'DM Sans', sans-serif",
     fontWeight: "600",
@@ -325,7 +333,7 @@ const Home = () => {
 
   /* ─── FEATURES ─── */
   const featuresSection = {
-    padding: "110px 80px",
+    padding: "80px clamp(20px, 6vw, 80px)",
     background: "#FAFAF8"
   };
 
@@ -340,7 +348,7 @@ const Home = () => {
   };
 
   const sectionTitle = {
-    fontSize: "clamp(1.9rem, 3vw, 2.5rem)",
+    fontSize: "clamp(1.6rem, 3vw, 2.5rem)",
     fontWeight: "700",
     color: "#1A2B52",
     letterSpacing: "-0.6px",
@@ -350,25 +358,25 @@ const Home = () => {
   };
 
   const sectionDesc = {
-    fontSize: "1rem",
+    fontSize: "clamp(0.875rem, 1.5vw, 1rem)",
     color: "#6B7280",
     fontFamily: "'DM Sans', sans-serif",
     maxWidth: "500px",
     lineHeight: "1.75",
-    marginBottom: "60px"
+    marginBottom: "50px"
   };
 
   const cardsGrid = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))",
-    gap: "24px"
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: "20px"
   };
 
   const featureCard = {
     background: "#FFFFFF",
     border: "1px solid #EDE9E2",
     borderRadius: "20px",
-    padding: "40px 34px",
+    padding: "clamp(24px, 4vw, 40px) clamp(20px, 3vw, 34px)",
     transition: "all 0.3s cubic-bezier(0.4,0,0.2,1)",
     cursor: "default",
     position: "relative",
@@ -383,26 +391,26 @@ const Home = () => {
   };
 
   const cardIconWrap = {
-    width: "56px",
-    height: "56px",
-    borderRadius: "16px",
+    width: "52px",
+    height: "52px",
+    borderRadius: "14px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "26px",
-    fontSize: "24px"
+    marginBottom: "22px",
+    fontSize: "22px"
   };
 
   const cardTitle = {
-    fontSize: "1.15rem",
+    fontSize: "1.1rem",
     fontWeight: "600",
     color: "#1A2B52",
     fontFamily: "'Playfair Display', serif",
-    marginBottom: "12px"
+    marginBottom: "10px"
   };
 
   const cardDesc = {
-    fontSize: "0.9rem",
+    fontSize: "0.88rem",
     color: "#6B7280",
     fontFamily: "'DM Sans', sans-serif",
     lineHeight: "1.7"
@@ -412,7 +420,7 @@ const Home = () => {
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
-    marginTop: "22px",
+    marginTop: "20px",
     color: "#C45B1A",
     fontSize: "0.875rem",
     fontFamily: "'DM Sans', sans-serif",
@@ -445,29 +453,29 @@ const Home = () => {
   /* ─── HIGHLIGHT STRIP ─── */
   const highlightStrip = {
     background: "#1A2B52",
-    padding: "100px 80px",
+    padding: "80px clamp(20px, 6vw, 80px)",
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "100px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "60px",
     alignItems: "center"
   };
 
   const highlightTitle = {
-    fontSize: "clamp(1.9rem, 2.5vw, 2.6rem)",
+    fontSize: "clamp(1.6rem, 2.5vw, 2.6rem)",
     fontWeight: "700",
     color: "#FFFFFF",
     fontFamily: "'Playfair Display', serif",
     lineHeight: "1.2",
     letterSpacing: "-0.5px",
-    marginBottom: "18px"
+    marginBottom: "16px"
   };
 
   const highlightDesc = {
-    fontSize: "0.95rem",
+    fontSize: "clamp(0.875rem, 1.5vw, 0.95rem)",
     color: "rgba(255,255,255,0.6)",
     fontFamily: "'DM Sans', sans-serif",
     lineHeight: "1.8",
-    marginBottom: "36px"
+    marginBottom: "32px"
   };
 
   const checkList = {
@@ -476,14 +484,14 @@ const Home = () => {
     margin: 0,
     display: "flex",
     flexDirection: "column",
-    gap: "14px"
+    gap: "12px"
   };
 
   const checkItem = {
     display: "flex",
     alignItems: "center",
-    gap: "14px",
-    fontSize: "0.92rem",
+    gap: "12px",
+    fontSize: "0.9rem",
     color: "rgba(255,255,255,0.8)",
     fontFamily: "'DM Sans', sans-serif"
   };
@@ -505,19 +513,19 @@ const Home = () => {
   const statsPanel = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: "16px"
+    gap: "14px"
   };
 
   const statCard = {
     background: "rgba(255,255,255,0.05)",
     border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: "16px",
-    padding: "30px 26px",
+    padding: "clamp(20px, 3vw, 30px) clamp(18px, 2.5vw, 26px)",
     transition: "all 0.25s ease"
   };
 
   const statCardNum = {
-    fontSize: "2.6rem",
+    fontSize: "clamp(2rem, 4vw, 2.6rem)",
     fontWeight: "700",
     color: "#E07A3A",
     fontFamily: "'Playfair Display', serif",
@@ -525,7 +533,7 @@ const Home = () => {
   };
 
   const statCardLabel = {
-    fontSize: "0.78rem",
+    fontSize: "0.72rem",
     color: "rgba(255,255,255,0.45)",
     fontFamily: "'DM Sans', sans-serif",
     textTransform: "uppercase",
@@ -535,29 +543,29 @@ const Home = () => {
 
   /* ─── TESTIMONIAL ─── */
   const testimonialSection = {
-    padding: "110px 80px",
+    padding: "80px clamp(20px, 6vw, 80px)",
     background: "#F4F0E8",
     textAlign: "center"
   };
 
   const testimonialCard = {
-    maxWidth: "700px",
+    maxWidth: "680px",
     margin: "0 auto",
     background: "#FFFFFF",
     border: "1px solid #EDE9E2",
     borderRadius: "24px",
-    padding: "60px",
+    padding: "clamp(32px, 5vw, 60px)",
     position: "relative",
     boxShadow: "0 24px 80px rgba(0,0,0,0.07)"
   };
 
   const testimonialQuote = {
-    fontSize: "1.2rem",
+    fontSize: "clamp(1rem, 2vw, 1.2rem)",
     color: "#374151",
     fontFamily: "'Playfair Display', serif",
     fontStyle: "italic",
     lineHeight: "1.85",
-    marginBottom: "36px"
+    marginBottom: "32px"
   };
 
   const testimonialAuthor = {
@@ -568,29 +576,30 @@ const Home = () => {
   };
 
   const authorAvatar = {
-    width: "48px",
-    height: "48px",
+    width: "46px",
+    height: "46px",
     borderRadius: "50%",
     background: "linear-gradient(135deg, #1A2B52, #2D4A7A)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     color: "white",
-    fontSize: "14px",
+    fontSize: "13px",
     fontWeight: "600",
     fontFamily: "'DM Sans', sans-serif",
-    boxShadow: "0 4px 12px rgba(26,43,82,0.3)"
+    boxShadow: "0 4px 12px rgba(26,43,82,0.3)",
+    flexShrink: 0
   };
 
   const authorName = {
-    fontSize: "0.92rem",
+    fontSize: "0.9rem",
     fontWeight: "600",
     color: "#1A2B52",
     fontFamily: "'DM Sans', sans-serif"
   };
 
   const authorRole = {
-    fontSize: "0.8rem",
+    fontSize: "0.78rem",
     color: "#9CA3AF",
     fontFamily: "'DM Sans', sans-serif",
     marginTop: "2px"
@@ -599,11 +608,11 @@ const Home = () => {
   /* ─── CTA BANNER ─── */
   const ctaBanner = {
     background: "linear-gradient(135deg, #C45B1A 0%, #B8501A 40%, #E07A3A 100%)",
-    padding: "90px 80px",
+    padding: "70px clamp(20px, 6vw, 80px)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "40px",
+    gap: "28px",
     flexWrap: "wrap",
     position: "relative",
     overflow: "hidden"
@@ -618,7 +627,7 @@ const Home = () => {
   };
 
   const ctaTitle = {
-    fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)",
+    fontSize: "clamp(1.4rem, 2.5vw, 2.2rem)",
     fontWeight: "700",
     color: "#FFFFFF",
     fontFamily: "'Playfair Display', serif",
@@ -629,12 +638,12 @@ const Home = () => {
   };
 
   const ctaWhiteBtn = {
-    padding: "15px 38px",
+    padding: "13px clamp(24px, 4vw, 38px)",
     background: "#FFFFFF",
     color: "#C45B1A",
     border: "none",
     borderRadius: "11px",
-    fontSize: "0.95rem",
+    fontSize: "0.92rem",
     fontWeight: "700",
     cursor: "pointer",
     fontFamily: "'DM Sans', sans-serif",
@@ -649,14 +658,14 @@ const Home = () => {
   const footer = {
     background: "#0F1B35",
     color: "white",
-    padding: "80px 80px 0"
+    padding: "60px clamp(20px, 6vw, 80px) 0"
   };
 
   const footerGrid = {
     display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr 1fr",
-    gap: "60px",
-    marginBottom: "60px"
+    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+    gap: "40px",
+    marginBottom: "48px"
   };
 
   const footerBrand = {
@@ -669,13 +678,13 @@ const Home = () => {
   };
 
   const footerHeading = {
-    fontSize: "0.72rem",
+    fontSize: "0.7rem",
     fontWeight: "700",
     color: "rgba(255,255,255,0.35)",
     letterSpacing: "0.12em",
     textTransform: "uppercase",
     fontFamily: "'DM Sans', sans-serif",
-    marginBottom: "20px"
+    marginBottom: "18px"
   };
 
   const footerLink = {
@@ -684,24 +693,90 @@ const Home = () => {
     color: "rgba(255,255,255,0.6)",
     fontFamily: "'DM Sans', sans-serif",
     textDecoration: "none",
-    marginBottom: "12px",
+    marginBottom: "10px",
     transition: "color 0.2s"
   };
 
   const footerBottom = {
     borderTop: "1px solid rgba(255,255,255,0.07)",
-    padding: "26px 0",
+    padding: "22px 0",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    fontSize: "0.8rem",
+    flexWrap: "wrap",
+    gap: "12px",
+    fontSize: "0.78rem",
     color: "rgba(255,255,255,0.3)",
     fontFamily: "'DM Sans', sans-serif"
   };
 
   const divider = {
     display: "flex",
-    gap: "24px"
+    gap: "20px"
+  };
+
+  /* ─── HAMBURGER ─── */
+  const hamburger = {
+    display: "none",
+    flexDirection: "column",
+    gap: "5px",
+    cursor: "pointer",
+    padding: "8px",
+    borderRadius: "8px",
+    background: "transparent",
+    border: "none"
+  };
+
+  const hamburgerLine = {
+    width: "22px",
+    height: "2px",
+    background: scrolled ? "#1A2B52" : "#FFFFFF",
+    borderRadius: "2px",
+    transition: "all 0.25s ease"
+  };
+
+  /* ─── MOBILE MENU ─── */
+  const mobileMenu = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(26,43,82,0.98)",
+    backdropFilter: "blur(20px)",
+    zIndex: 200,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    transform: menuOpen ? "translateX(0)" : "translateX(100%)",
+    transition: "transform 0.35s cubic-bezier(0.4,0,0.2,1)"
+  };
+
+  const mobileNavLink = {
+    fontSize: "1.5rem",
+    color: "rgba(255,255,255,0.85)",
+    textDecoration: "none",
+    fontFamily: "'Playfair Display', serif",
+    fontWeight: "600",
+    padding: "14px 40px",
+    borderRadius: "12px",
+    transition: "all 0.2s ease",
+    textAlign: "center"
+  };
+
+  const mobileClose = {
+    position: "absolute",
+    top: "20px",
+    right: "24px",
+    background: "transparent",
+    border: "none",
+    color: "white",
+    fontSize: "1.8rem",
+    cursor: "pointer",
+    padding: "8px",
+    lineHeight: "1"
   };
 
   return (
@@ -724,9 +799,7 @@ const Home = () => {
           background: rgba(196,91,26,0.08) !important;
           color: #C45B1A !important;
         }
-        .nav-login-btn:hover {
-          background: rgba(196,91,26,0.06) !important;
-        }
+        .nav-login-btn:hover { background: rgba(196,91,26,0.06) !important; }
         .nav-register-btn:hover {
           opacity: 0.88;
           transform: translateY(-1px);
@@ -751,11 +824,94 @@ const Home = () => {
         }
         .footer-link:hover { color: rgba(255,255,255,0.9) !important; }
         .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.2) !important; }
+        .mobile-nav-link:hover { background: rgba(255,255,255,0.08); color: #E07A3A !important; }
 
         .hero-stat:last-child { border-right: none !important; }
+
+        /* ── RESPONSIVE ── */
+
+        /* Tablet */
+        @media (max-width: 900px) {
+          .nav-links-desktop { display: none !important; }
+          .nav-btns-desktop { display: none !important; }
+          .hamburger-btn { display: flex !important; }
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+          .hero-stats-wrap {
+            flex-direction: column !important;
+            gap: 0 !important;
+          }
+          .hero-stat-item {
+            border-right: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+            padding: 18px 24px !important;
+          }
+          .hero-stat-item:last-child { border-bottom: none !important; }
+
+          .highlight-strip-grid {
+            grid-template-columns: 1fr !important;
+            gap: 48px !important;
+          }
+
+          .stats-panel-grid {
+            grid-template-columns: 1fr 1fr !important;
+          }
+
+          .footer-bottom-wrap {
+            flex-direction: column !important;
+            text-align: center !important;
+          }
+
+          .trust-bar-wrap {
+            flex-direction: column !important;
+            gap: 10px !important;
+          }
+
+          .trust-badges-wrap {
+            gap: 14px !important;
+            justify-content: center !important;
+          }
+
+          .cta-banner-wrap {
+            flex-direction: column !important;
+            text-align: center !important;
+            align-items: center !important;
+          }
+
+          .testimonial-author-wrap {
+            flex-direction: column !important;
+            text-align: center !important;
+          }
+        }
+
+        /* Large mobile / small tablet */
+        @media (min-width: 601px) and (max-width: 900px) {
+          .highlight-strip-grid {
+            grid-template-columns: 1fr !important;
+            gap: 48px !important;
+          }
+        }
       `}</style>
 
       <div style={page}>
+
+        {/* ── MOBILE MENU OVERLAY ── */}
+        <div style={mobileMenu}>
+          <button style={mobileClose} onClick={() => setMenuOpen(false)}>✕</button>
+          <a href="#features" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Features</a>
+          <a href="#about" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>About</a>
+          <a href="#contact" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Contact</a>
+          <div style={{ display: "flex", gap: "12px", marginTop: "24px", flexWrap: "wrap", justifyContent: "center" }}>
+            <Link to="/login" onClick={() => setMenuOpen(false)}>
+              <button style={{ ...loginBtn, color: "rgba(255,255,255,0.9)", border: "1.5px solid rgba(255,255,255,0.4)" }}>Login</button>
+            </Link>
+            <Link to="/register" onClick={() => setMenuOpen(false)}>
+              <button style={{ ...registerBtn }}>Register</button>
+            </Link>
+          </div>
+        </div>
 
         {/* ── NAVBAR ── */}
         <nav style={navbar}>
@@ -764,19 +920,31 @@ const Home = () => {
             <span style={logoText}>EduTrack</span>
           </div>
 
-          <div style={navLinks}>
+          <div style={navLinks} className="nav-links-desktop">
             <a href="#features" style={navLink} className="nav-link-item">Features</a>
             <a href="#about" style={navLink} className="nav-link-item">About</a>
             <a href="#contact" style={navLink} className="nav-link-item">Contact</a>
           </div>
 
-          <div style={navBtns}>
-            <Link to="/login">
-              <button style={loginBtn} className="nav-login-btn">Login</button>
-            </Link>
-            <Link to="/register">
-              <button style={registerBtn} className="nav-register-btn">Register</button>
-            </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }} className="nav-btns-desktop">
+              <Link to="/login">
+                <button style={loginBtn} className="nav-login-btn">Login</button>
+              </Link>
+              <Link to="/register">
+                <button style={registerBtn} className="nav-register-btn">Register</button>
+              </Link>
+            </div>
+            <button
+              style={{ ...hamburger }}
+              className="hamburger-btn"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              <span style={hamburgerLine}></span>
+              <span style={hamburgerLine}></span>
+              <span style={hamburgerLine}></span>
+            </button>
           </div>
         </nav>
 
@@ -813,13 +981,17 @@ const Home = () => {
               <button style={secondaryBtn} className="secondary-btn">▶ Watch Demo</button>
             </div>
 
-            <div style={heroStats}>
+            <div style={heroStats} className="hero-stats-wrap">
               {[
                 { num: "5,000+", label: "Students" },
                 { num: "50+", label: "Courses" },
                 { num: "100+", label: "Faculty" }
               ].map((s, i) => (
-                <div key={i} style={i < 2 ? heroStat : { ...heroStat, borderRight: "none" }} className="hero-stat">
+                <div
+                  key={i}
+                  style={i < 2 ? heroStat : { ...heroStat, borderRight: "none" }}
+                  className="hero-stat hero-stat-item"
+                >
                   <span style={heroStatNum}>{s.num}</span>
                   <span style={heroStatLabel}>{s.label}</span>
                 </div>
@@ -829,9 +1001,9 @@ const Home = () => {
         </section>
 
         {/* ── TRUST BAR ── */}
-        <div style={trustBar}>
+        <div style={trustBar} className="trust-bar-wrap">
           <span style={trustText}>Trusted by</span>
-          <div style={trustBadges}>
+          <div style={trustBadges} className="trust-badges-wrap">
             {["🏛️ Top Universities", "🎓 10K+ Students", "✅ ISO Certified", "🔒 GDPR Compliant"].map((b, i) => (
               <span key={i} style={trustBadge}>{b}</span>
             ))}
@@ -865,7 +1037,7 @@ const Home = () => {
         </section>
 
         {/* ── HIGHLIGHT STRIP ── */}
-        <section id="about" style={highlightStrip}>
+        <section id="about" style={highlightStrip} className="highlight-strip-grid">
           <div>
             <div style={{ ...sectionLabel, color: "#E07A3A" }}>Why EduTrack</div>
             <h2 style={highlightTitle}>Built for the Modern University Experience</h2>
@@ -889,7 +1061,7 @@ const Home = () => {
             </ul>
           </div>
 
-          <div style={statsPanel}>
+          <div style={statsPanel} className="stats-panel-grid">
             {[
               { num: "98%", label: "Satisfaction Rate" },
               { num: "3x", label: "Faster Processing" },
@@ -907,17 +1079,17 @@ const Home = () => {
         {/* ── TESTIMONIAL ── */}
         <section style={testimonialSection}>
           <div style={sectionLabel}>Testimonials</div>
-          <h2 style={{ ...sectionTitle, textAlign: "center", marginBottom: "52px" }}>
+          <h2 style={{ ...sectionTitle, textAlign: "center", marginBottom: "44px" }}>
             Trusted Across Campus
           </h2>
 
           <div style={testimonialCard}>
-            <div style={{ fontSize: "56px", color: "#E07A3A", lineHeight: "1", marginBottom: "20px", fontFamily: "serif" }}>"</div>
+            <div style={{ fontSize: "52px", color: "#E07A3A", lineHeight: "1", marginBottom: "16px", fontFamily: "serif" }}>"</div>
             <p style={testimonialQuote}>
               EduTrack transformed how our university operates. Managing 5,000 students
               used to be chaos — now everything is streamlined, transparent, and fast.
             </p>
-            <div style={testimonialAuthor}>
+            <div style={testimonialAuthor} className="testimonial-author-wrap">
               <div style={authorAvatar}>VP</div>
               <div style={{ textAlign: "left" }}>
                 <div style={authorName}>Dr. Vikram Patil</div>
@@ -928,7 +1100,7 @@ const Home = () => {
         </section>
 
         {/* ── CTA BANNER ── */}
-        <section style={ctaBanner}>
+        <section style={ctaBanner} className="cta-banner-wrap">
           <div style={ctaOverlay} />
           <h2 style={ctaTitle}>Ready to Transform Your University Management?</h2>
           <Link to="/login">
@@ -942,7 +1114,7 @@ const Home = () => {
             <div>
               <div style={{ ...navLogo }}>
                 <div style={{ ...logoMark }}>E</div>
-                <span style={{ ...logoText, color: "white" }}>EduTrack</span>
+                <span style={{ fontSize: "1.3rem", fontWeight: "700", color: "white", fontFamily: "'Playfair Display', serif", letterSpacing: "-0.3px" }}>EduTrack</span>
               </div>
               <p style={footerBrand}>
                 A modern university management system built for students,
@@ -972,9 +1144,9 @@ const Home = () => {
             </div>
           </div>
 
-          <div style={footerBottom}>
+          <div style={footerBottom} className="footer-bottom-wrap">
             <span>© 2026 EduTrack University Portal. All Rights Reserved.</span>
-             <span>developer by g-one</span>
+            <span>developed by g-one</span>
             <div style={divider}>
               <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Privacy</a>
               <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Terms</a>

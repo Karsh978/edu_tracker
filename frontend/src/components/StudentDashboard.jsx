@@ -19,15 +19,17 @@ const CSS = `
   --r:12px;--rs:8px;--rx:6px;
   --sd1:0 1px 3px rgba(6,14,31,.06);
   --sd2:0 4px 16px rgba(6,14,31,.09);
+  --sb-width: 250px;
 }
 body{font-family:'Outfit',sans-serif;background:var(--bg);}
-.shell{display:flex;min-height:100vh;}
+.shell{display:flex;min-height:100vh;min-height:100dvh;}
 
 /* ── SIDEBAR ── */
 .sidebar{
-  width:250px;min-height:100vh;background:var(--n900);
+  width:var(--sb-width);min-height:100vh;background:var(--n900);
   display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:200;
   border-right:1px solid rgba(255,255,255,.05);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
 }
 .sb-brand{
   padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.07);
@@ -77,13 +79,14 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
 .sb-mini-val{font-size:18px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1;}
 .sb-mini-lbl{font-size:9.5px;color:var(--n200);font-weight:500;margin-top:3px;text-transform:uppercase;letter-spacing:.6px;}
 
-.sb-nav{padding:14px 10px;flex:1;}
+.sb-nav{padding:14px 10px;flex:1;overflow-y:auto;}
 .sb-sec-lbl{font-size:9px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:1.4px;padding:0 8px 8px;margin-top:4px;}
 .sb-item{
   display:flex;align-items:center;gap:10px;
   padding:9px 10px;border-radius:var(--rx);cursor:pointer;margin-bottom:2px;
   transition:all .18s;color:var(--txt3);font-size:13px;font-weight:500;
   border:1px solid transparent;position:relative;
+  -webkit-tap-highlight-color: transparent;
 }
 .sb-item:hover{background:rgba(255,255,255,.06);color:#fff;border-color:rgba(255,255,255,.07);}
 .sb-item.active{
@@ -106,11 +109,29 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
   background:rgba(240,78,106,.12);border:1px solid rgba(240,78,106,.25);
   color:#F04E6A;font-size:13px;font-weight:600;
   cursor:pointer;transition:all .18s;font-family:'Outfit',sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn-logout-sb:hover{background:rgba(240,78,106,.22);border-color:rgba(240,78,106,.5);}
 
+/* Mobile sidebar overlay */
+.sb-overlay{
+  display:none;position:fixed;inset:0;background:rgba(6,14,31,.65);
+  z-index:199;backdrop-filter:blur(3px);
+  animation: fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* Mobile hamburger button */
+.sb-toggle{
+  display:none;width:38px;height:38px;border-radius:var(--rs);
+  align-items:center;justify-content:center;
+  background:#F0F4FA;border:1px solid var(--border);cursor:pointer;
+  font-size:18px;color:var(--txt2);flex-shrink:0;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ── PANEL ── */
-.panel{margin-left:250px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.panel{margin-left:var(--sb-width);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .28s;}
 
 /* ── HEADER ── */
 .header{
@@ -119,13 +140,14 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;
   box-shadow:0 2px 12px rgba(6,14,31,.06);
+  gap: 12px;
 }
-.header-left{display:flex;align-items:center;gap:14px;}
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt3);font-weight:500;}
+.header-left{display:flex;align-items:center;gap:14px;min-width:0;}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt3);font-weight:500;white-space:nowrap;}
 .breadcrumb strong{color:var(--txt1);font-size:14.5px;font-weight:700;}
-.header-right{display:flex;align-items:center;gap:9px;}
-.h-date{background:linear-gradient(135deg,var(--n700),var(--n600));color:var(--n100);font-size:11px;font-weight:600;padding:6px 13px;border-radius:20px;letter-spacing:.2px;}
-.h-btn{width:36px;height:36px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;background:#F0F4FA;border:1px solid var(--border);cursor:pointer;font-size:15px;position:relative;transition:all .18s;color:var(--txt2);}
+.header-right{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.h-date{background:linear-gradient(135deg,var(--n700),var(--n600));color:var(--n100);font-size:11px;font-weight:600;padding:6px 13px;border-radius:20px;letter-spacing:.2px;white-space:nowrap;}
+.h-btn{width:36px;height:36px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;background:#F0F4FA;border:1px solid var(--border);cursor:pointer;font-size:15px;position:relative;transition:all .18s;color:var(--txt2);flex-shrink:0;}
 .h-btn:hover{background:var(--n100);border-color:var(--n300);}
 .h-notif-dot{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--rose);border:1.5px solid #fff;}
 .h-divider{width:1px;height:26px;background:var(--border);margin:0 2px;}
@@ -145,6 +167,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
   display:flex;align-items:center;justify-content:space-between;
   position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08);
   box-shadow:0 8px 32px rgba(6,14,31,.2);
+  gap: 16px;
 }
 .welcome-banner::before{
   content:'';position:absolute;top:-40px;right:-40px;
@@ -156,11 +179,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
   width:140px;height:140px;border-radius:50%;
   background:radial-gradient(circle,rgba(45,95,196,.2) 0%,transparent 70%);
 }
-.wb-left{position:relative;z-index:1;}
+.wb-left{position:relative;z-index:1;min-width:0;}
 .wb-greeting{font-size:12px;color:var(--n200);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
 .wb-name{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.3px;margin-bottom:6px;}
 .wb-sub{font-size:13px;color:var(--n200);font-weight:400;}
-.wb-right{position:relative;z-index:1;display:flex;align-items:center;gap:24px;}
+.wb-right{position:relative;z-index:1;display:flex;align-items:center;gap:24px;flex-shrink:0;}
 .wb-stat{text-align:center;}
 .wb-stat-val{font-size:28px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1;}
 .wb-stat-lbl{font-size:10.5px;color:var(--n200);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.6px;}
@@ -197,7 +220,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);}
 .tbl-bar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#FAFCFF 0%,#fff 100%);}
 .tbl-ttl{font-size:13.5px;font-weight:700;color:var(--txt1);}
 .tbl-sub{font-size:11.5px;color:var(--txt3);font-weight:500;}
-table{width:100%;border-collapse:collapse;}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:480px;}
 thead tr{background:#F2F6FC;border-bottom:2px solid var(--border);}
 th{padding:10px 18px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt2);}
 tbody tr{border-bottom:1px solid #F2F6FC;transition:background .15s;}
@@ -257,8 +281,8 @@ td{padding:12px 18px;font-size:13px;color:var(--txt1);}
 }
 .att-item-day{font-size:16px;font-weight:800;color:var(--txt1);font-family:'JetBrains Mono',monospace;line-height:1;}
 .att-item-mon{font-size:9.5px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
-.att-item-info{flex:1;}
-.att-item-course{font-size:13px;font-weight:600;color:var(--txt1);}
+.att-item-info{flex:1;min-width:0;}
+.att-item-course{font-size:13px;font-weight:600;color:var(--txt1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .att-item-time{font-size:11px;color:var(--txt3);font-weight:500;margin-top:2px;}
 .att-status{padding:4px 13px;border-radius:20px;font-size:11.5px;font-weight:700;flex-shrink:0;}
 .att-present{background:#D1FAE5;color:#065F46;}
@@ -272,18 +296,143 @@ td{padding:12px 18px;font-size:13px;color:var(--txt1);}
 .footer-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;}
 .footer-brand{display:flex;flex-direction:column;gap:9px;}
 .footer-logo-row{display:flex;align-items:center;gap:9px;}
-.footer-logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--n400));display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#fff;}
+.footer-logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--n400));display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;}
 .footer-logo-name{font-size:15px;font-weight:800;color:#fff;}
 .footer-desc{font-size:11.5px;color:var(--n200);font-weight:400;line-height:1.65;max-width:210px;}
 .footer-col-ttl{font-size:10.5px;font-weight:700;color:var(--n200);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:11px;}
 .footer-links{display:flex;flex-direction:column;gap:7px;}
 .footer-lnk{font-size:12px;color:var(--n300);font-weight:500;cursor:pointer;transition:color .18s;display:flex;align-items:center;gap:6px;}
 .footer-lnk:hover{color:#fff;}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.07);margin-top:20px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);margin-top:20px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .footer-copy{font-size:11px;color:var(--n300);font-weight:500;}
 .footer-status{display:flex;align-items:center;gap:5px;font-size:11px;color:#10B981;font-weight:600;}
 .status-dot{width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 0 2px rgba(16,185,129,.25);}
 .footer-ver{background:rgba(45,95,196,.3);border:1px solid rgba(85,133,232,.3);color:var(--n200);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px;font-family:'JetBrains Mono',monospace;}
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+/* Large desktop 1280px+ — already great, minor tuning */
+@media(min-width:1280px){
+  .page-body{padding:28px 36px;}
+  .footer{padding:28px 36px;}
+}
+
+/* Laptop 1025px – 1279px */
+@media(max-width:1279px) and (min-width:1025px){
+  :root{--sb-width:220px;}
+  .page-body{padding:20px 24px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .wb-name{font-size:20px;}
+}
+
+/* Tablet landscape 769px – 1024px */
+@media(max-width:1024px) and (min-width:769px){
+  :root{--sb-width:200px;}
+  .sidebar{width:200px;}
+  .sb-brand-text h2{font-size:14px;}
+  .sb-mini-stats{padding:10px 12px;}
+  .page-body{padding:18px 20px;}
+  .header{padding:0 20px;}
+  .footer{padding:20px;}
+  .footer-inner{grid-template-columns:1fr 1fr;gap:20px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .att-grid{grid-template-columns:1fr;} 
+  .welcome-banner{padding:20px;}
+  .wb-name{font-size:20px;}
+  .wb-stat-val{font-size:22px;}
+  .h-date{display:none;}
+}
+
+/* Tablet portrait 481px – 768px — sidebar becomes drawer */
+@media(max-width:768px) and (min-width:481px){
+  :root{--sb-width:240px;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 32px rgba(6,14,31,.5);}
+  .sb-overlay{display:block;}
+  .sb-toggle{display:flex;}
+  .panel{margin-left:0;}
+  .header{padding:0 16px;height:58px;}
+  .breadcrumb span:first-child{display:none;}
+  .h-date{display:none;}
+  .h-divider{display:none;}
+  .h-user .h-urole{display:none;}
+  .page-body{padding:16px;}
+  .welcome-banner{flex-direction:column;align-items:flex-start;gap:14px;padding:20px;}
+  .wb-right{gap:16px;}
+  .wb-stat-val{font-size:22px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .att-grid{grid-template-columns:1fr;}
+  .footer{padding:20px 16px;}
+  .footer-inner{grid-template-columns:1fr;gap:16px;}
+}
+
+/* Mobile ≤480px — sidebar drawer, stacked layout */
+@media(max-width:480px){
+  :root{--sb-width:260px;}
+  .sidebar{transform:translateX(-100%);width:var(--sb-width);}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 32px rgba(6,14,31,.5);}
+  .sb-overlay{display:block;}
+  .sb-toggle{display:flex;}
+  .panel{margin-left:0;}
+
+  .header{padding:0 14px;height:56px;gap:8px;}
+  .breadcrumb span:first-child{display:none;}
+  .breadcrumb{font-size:11px;}
+  .breadcrumb strong{font-size:13px;}
+  .h-date{display:none;}
+  .h-divider{display:none;}
+  .h-user .h-urole{display:none;}
+  .h-user{padding:4px 8px;gap:6px;}
+  .h-uname{font-size:11px;}
+
+  .page-body{padding:14px 12px;}
+
+  .welcome-banner{
+    flex-direction:column;align-items:flex-start;
+    gap:14px;padding:18px 16px;
+    border-radius:10px;
+  }
+  .wb-name{font-size:18px;}
+  .wb-sub{font-size:12px;}
+  .wb-right{gap:14px;}
+  .wb-stat-val{font-size:20px;}
+  .wb-stat-lbl{font-size:9.5px;}
+
+  .stats-grid{grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+  .stat-card{padding:13px 12px;gap:8px;}
+  .stat-icon{width:34px;height:34px;font-size:16px;border-radius:8px;}
+  .stat-val{font-size:19px;}
+  .stat-lbl{font-size:10.5px;}
+  .stat-pill{font-size:9.5px;padding:2px 7px;}
+
+  .att-grid{grid-template-columns:1fr;gap:12px;}
+  .att-ring-wrap{gap:14px;}
+
+  .footer{padding:18px 14px;}
+  .footer-inner{grid-template-columns:1fr;gap:14px;}
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:8px;}
+
+  /* Table horizontal scroll on mobile */
+  .tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:420px;}
+  td,th{padding:10px 12px;}
+
+  .sb-item-label{font-size:12px;}
+  .sb-mini-val{font-size:16px;}
+}
+
+/* Very small phones ≤360px */
+@media(max-width:360px){
+  .header{padding:0 10px;}
+  .page-body{padding:10px 9px;}
+  .stats-grid{grid-template-columns:1fr;gap:8px;}
+  .stat-card{padding:12px;}
+  .welcome-banner{padding:14px 12px;}
+  .wb-name{font-size:16px;}
+  :root{--sb-width:100vw;}
+}
 `;
 
 const StudentDashboard = () => {
@@ -291,46 +440,49 @@ const StudentDashboard = () => {
   const [attendance, setAttendance] = useState([]);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [stats, setStats] = useState({ avgMarks: 0, attPct: 0, presentCount: 0, absentCount: 0 });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const userName = localStorage.getItem('userName') || 'Student';
-  // StudentDashboard.jsx ke upar states ke paas add karein
-const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(null);
 
+  const heatmapData = attendance.map(a => ({
+    date: a.date.split('T')[0],
+    count: a.status === 'Present' ? 1 : 0
+  }));
+  const userRole = localStorage.getItem('userRole');
 
-const heatmapData = attendance.map(a => ({
-  date: a.date.split('T')[0], // YYYY-MM-DD format
-  count: a.status === 'Present' ? 1 : 0
-}));
-const userRole = localStorage.getItem('userRole'); // Login ke waqt save kiya tha
+  const menuItems = [
+    { key: 'dashboard', icon: '⊞', label: 'Dashboard', roles: ['Student', 'Faculty', 'Admin'] },
+    { key: 'grades', icon: '📊', label: 'My Grades', roles: ['Student'] },
+    { key: 'manage-grades', icon: '📝', label: 'Manage Marks', roles: ['Faculty', 'Admin'] },
+    { key: 'attendance', icon: '🗓', label: 'Attendance', roles: ['Student'] },
+    { key: 'reports', icon: '📈', label: 'Full Reports', roles: ['Admin'] },
+  ];
 
-const menuItems = [
-  { key: 'dashboard', icon: '⊞', label: 'Dashboard', roles: ['Student', 'Faculty', 'Admin'] },
-  { key: 'grades', icon: '📊', label: 'My Grades', roles: ['Student'] },
-  { key: 'manage-grades', icon: '📝', label: 'Manage Marks', roles: ['Faculty', 'Admin'] },
-  { key: 'attendance', icon: '🗓', label: 'Attendance', roles: ['Student'] },
-  { key: 'reports', icon: '📈', label: 'Full Reports', roles: ['Admin'] },
-];
-//email notification 
-useEffect(() => {
-  const userId = localStorage.getItem('userId');
-  if (userId) {
-    socket.emit('join_room', userId);
-  }
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      socket.emit('join_room', userId);
+    }
+    socket.on('new_marks', (data) => {
+      alert(`📢 Notification: Aapke ${data.course} mein ${data.marks} marks aaye hain!`);
+      fetchData();
+    });
+    return () => socket.off('new_marks');
+  }, []);
 
-  socket.on('new_marks', (data) => {
-    alert(`📢 Notification: Aapke ${data.course} mein ${data.marks} marks aaye hain!`);
-    fetchData(); // Dashboard refresh karein
-  });
-
-  return () => socket.off('new_marks');
-}, []);
+  // Close sidebar on nav change (mobile)
+  const handleNav = (key) => {
+    setActiveNav(key);
+    setSidebarOpen(false);
+  };
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const resGrades = await API.get('/student/my-grades');
-        const resAttendance = await API.get('/student/my-attendance');
-        const resUser = await API.get('/auth/me');
+      const resAttendance = await API.get('/student/my-attendance');
+      const resUser = await API.get('/auth/me');
       setGrades(resGrades.data);
       setAttendance(resAttendance.data);
       setUserData(resUser.data);
@@ -364,7 +516,6 @@ useEffect(() => {
 
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
-  // Ring Calculation
   const radius = 34;
   const circ = 2 * Math.PI * radius;
   const offset = circ - (stats.attPct / 100) * circ;
@@ -382,8 +533,13 @@ useEffect(() => {
     <>
       <style>{CSS}</style>
       <div className="shell">
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div className="sb-overlay" onClick={() => setSidebarOpen(false)} />
+        )}
+
         {/* SIDEBAR */}
-        <aside className="sidebar">
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sb-brand">
             <div className="sb-logo">ET</div>
             <div className="sb-brand-text">
@@ -393,18 +549,17 @@ useEffect(() => {
           </div>
 
           <div className="sb-profile">
-            
-<div className="sb-avatar">
-  {userData?.profileImage ? (
-    <img 
-      src={`https://edutrack-api-8t5g.onrender.com${userData.profileImage}`} 
-      style={{width:'100%', height:'100%', borderRadius:'50%', objectFit: 'cover'}} 
-      alt='User Profile' 
-    />
-  ) : (
-    userName ? userName.charAt(0).toUpperCase() : 'U'
-  )}
-</div>
+            <div className="sb-avatar">
+              {userData?.profileImage ? (
+                <img
+                  src={`https://edutrack-api-8t5g.onrender.com${userData.profileImage}`}
+                  style={{width:'100%', height:'100%', borderRadius:'50%', objectFit: 'cover'}}
+                  alt='User Profile'
+                />
+              ) : (
+                userName ? userName.charAt(0).toUpperCase() : 'U'
+              )}
+            </div>
             <div className="sb-profile-info">
               <h4>{userName}</h4>
               <p>Student · Active</p>
@@ -426,7 +581,7 @@ useEffect(() => {
           <nav className="sb-nav">
             <div className="sb-sec-lbl">Navigation</div>
             {navItems.map(item => (
-              <div key={item.key} className={`sb-item ${activeNav === item.key ? 'active' : ''}`} onClick={() => setActiveNav(item.key)}>
+              <div key={item.key} className={`sb-item ${activeNav === item.key ? 'active' : ''}`} onClick={() => handleNav(item.key)}>
                 {activeNav === item.key && <span className="sb-active-bar" />}
                 <span className="sb-item-icon">{item.icon}</span>
                 <span className="sb-item-label">{item.label}</span>
@@ -435,7 +590,7 @@ useEffect(() => {
             ))}
             <div className="sb-divider" />
             <div className="sb-sec-lbl">Account</div>
-            <div className={`sb-item ${activeNav === 'profile' ? 'active' : ''}`} onClick={() => setActiveNav('profile')}>
+            <div className={`sb-item ${activeNav === 'profile' ? 'active' : ''}`} onClick={() => handleNav('profile')}>
               <span className="sb-item-icon">👤</span>
               <span className="sb-item-label">My Profile</span>
             </div>
@@ -452,6 +607,8 @@ useEffect(() => {
         <div className="panel">
           <header className="header">
             <div className="header-left">
+              {/* Hamburger — only shows on mobile/tablet via CSS */}
+              <div className="sb-toggle" onClick={() => setSidebarOpen(o => !o)}>☰</div>
               <div className="breadcrumb">
                 <span>EduTrack</span> <span style={{ margin: '0 2px' }}>›</span>
                 <strong>{activeNav === 'profile' ? 'Profile' : 'Student Dashboard'}</strong>
@@ -514,29 +671,30 @@ useEffect(() => {
                   ))}
                 </div>
 
-                {/* Tables & Attendance grid */}
                 <div className="sec-hd"><span className="sec-ttl">My Report Card</span><div className="sec-line" /></div>
                 <div className="tbl-wrap">
-                  <table>
-                    <thead>
-                      <tr><th>#</th><th>Course Name</th><th>Marks</th><th>Performance</th><th>Grade</th></tr>
-                    </thead>
-                    <tbody>
-                      {grades.map((g, i) => (
-                        <tr key={i}>
-                          <td>{i+1}</td>
-                          <td style={{fontWeight:600}}>{g.enrollment?.course?.title || 'Course'}</td>
-                          <td>{g.marks}/100</td>
-                          <td>
-                            <div className="marks-bar-wrap">
-                              <div className="marks-bar-bg"><div className="marks-bar-fill" style={{ width: `${g.marks}%`, background: getBarColor(g.marks) }} /></div>
-                            </div>
-                          </td>
-                          <td><span className={`gp ${getGC(g.grade)}`}>{g.grade}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="tbl-scroll">
+                    <table>
+                      <thead>
+                        <tr><th>#</th><th>Course Name</th><th>Marks</th><th>Performance</th><th>Grade</th></tr>
+                      </thead>
+                      <tbody>
+                        {grades.map((g, i) => (
+                          <tr key={i}>
+                            <td>{i+1}</td>
+                            <td style={{fontWeight:600}}>{g.enrollment?.course?.title || 'Course'}</td>
+                            <td>{g.marks}/100</td>
+                            <td>
+                              <div className="marks-bar-wrap">
+                                <div className="marks-bar-bg"><div className="marks-bar-fill" style={{ width: `${g.marks}%`, background: getBarColor(g.marks) }} /></div>
+                              </div>
+                            </td>
+                            <td><span className={`gp ${getGC(g.grade)}`}>{g.grade}</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 <div className="att-grid">
@@ -557,53 +715,49 @@ useEffect(() => {
                     </div>
                   </div>
                   <div className="att-list-card">
-                     <div className="att-list-hd">Detailed Log</div>
-                     <div className="att-scroll">
-                        {attendance.map((a, i) => (
-                          <div className="att-item" key={i}>
-                            <div className="att-item-date">
-                               <div className="att-item-day">{new Date(a.date).getDate()}</div>
-                               <div className="att-item-mon">{new Date(a.date).toLocaleString('default', { month: 'short' })}</div>
-                            </div>
-                            <div className="att-item-info">
-                               <div className="att-item-course">Class Session</div>
-                               <div className="att-item-time">{new Date(a.date).toLocaleDateString()}</div>
-                            </div>
-                            <div className={`att-status ${a.status === 'Present' ? 'att-present' : 'att-absent'}`}>{a.status}</div>
+                    <div className="att-list-hd">Detailed Log</div>
+                    <div className="att-scroll">
+                      {attendance.map((a, i) => (
+                        <div className="att-item" key={i}>
+                          <div className="att-item-date">
+                            <div className="att-item-day">{new Date(a.date).getDate()}</div>
+                            <div className="att-item-mon">{new Date(a.date).toLocaleString('default', { month: 'short' })}</div>
                           </div>
-                        ))}
-                     </div>
+                          <div className="att-item-info">
+                            <div className="att-item-course">Class Session</div>
+                            <div className="att-item-time">{new Date(a.date).toLocaleDateString()}</div>
+                          </div>
+                          <div className={`att-status ${a.status === 'Present' ? 'att-present' : 'att-absent'}`}>{a.status}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                
-<div style={{ background: '#fff', padding: '20px', borderRadius: '15px', marginTop: '20px' }}>
-  <h3>Attendance Consistency</h3>
-  <CalendarHeatmap
-    startDate={new Date('2026-01-01')}
-    endDate={new Date('2026-12-31')}
-    values={heatmapData}
-    classForValue={(value) => {
-      if (!value || value.count === 0) return 'color-empty';
-      return 'color-scale-present'; // Green color for present
-    }}
- 
 
-    
-  />
-  {/* 2. Now start your mapping logic outside the tag */}
-{menuItems
-  .filter(item => item.roles.includes(userRole))
-  .map(item => (
-    <div key={item.key} className="sb-item">
-      {item.label}
-    </div>
-  ))
-}
-</div>
+                <div style={{ background: '#fff', padding: '20px', borderRadius: '15px', marginTop: '20px', overflowX: 'auto' }}>
+                  <h3>Attendance Consistency</h3>
+                  <CalendarHeatmap
+                    startDate={new Date('2026-01-01')}
+                    endDate={new Date('2026-12-31')}
+                    values={heatmapData}
+                    classForValue={(value) => {
+                      if (!value || value.count === 0) return 'color-empty';
+                      return 'color-scale-present';
+                    }}
+                  />
+                  {menuItems
+                    .filter(item => item.roles.includes(userRole))
+                    .map(item => (
+                      <div key={item.key} className="sb-item">
+                        {item.label}
+                      </div>
+                    ))
+                  }
+                </div>
               </>
             )}
 
-            {/* FOOTER - Ab sab set hai */}
+            {/* FOOTER */}
             <footer className="footer">
               <div className="footer-inner">
                 <div className="footer-brand">

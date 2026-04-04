@@ -9,11 +9,12 @@ const styles = `
 
   .edu-register-root {
     min-height: 100vh;
+    min-height: 100dvh;
     background: #0a0a0f;
     display: flex;
     align-items: stretch;
     font-family: 'DM Sans', sans-serif;
-    overflow: hidden;
+    overflow-x: hidden;
     position: relative;
   }
 
@@ -77,6 +78,7 @@ const styles = `
     display: flex; align-items: center; justify-content: center;
     font-size: 20px;
     box-shadow: 0 0 24px rgba(99,102,241,0.4);
+    flex-shrink: 0;
   }
   .edu-brand-name {
     font-family: 'Syne', sans-serif;
@@ -250,6 +252,8 @@ const styles = `
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   .edu-role-tab:hover {
     border-color: rgba(99,102,241,0.35);
@@ -359,6 +363,8 @@ const styles = `
     transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
     box-shadow: 0 8px 24px rgba(99,102,241,0.35);
     animation: fadeSlideUp 0.5s 0.7s ease both;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   .edu-submit:hover:not(:disabled) {
     transform: translateY(-2px);
@@ -463,10 +469,175 @@ const styles = `
   }
   .edu-prog-dot.active { width: 22px; background: #6366f1; }
 
-  @media (max-width: 768px) {
+  /* ============================================================
+     RESPONSIVE BREAKPOINTS
+     ============================================================ */
+
+  /* Large desktops (1280px+) — already fine, minor polish */
+  @media (min-width: 1280px) {
+    .edu-left {
+      padding: 72px 64px;
+    }
+    .edu-tagline h1 {
+      font-size: 3rem;
+    }
+  }
+
+  /* Laptop / small desktop (1024px – 1279px) */
+  @media (max-width: 1279px) and (min-width: 1025px) {
+    .edu-left {
+      flex: 0 0 44%;
+      padding: 52px 44px;
+    }
+    .edu-tagline h1 {
+      font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+    }
+    .edu-card {
+      padding: 40px 36px 36px;
+    }
+  }
+
+  /* Tablet landscape / small laptop (769px – 1024px) */
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .edu-left {
+      flex: 0 0 40%;
+      padding: 48px 36px;
+    }
+    .edu-brand { margin-bottom: 44px; }
+    .edu-tagline h1 {
+      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    }
+    .edu-tagline p { font-size: 0.88rem; }
+    .edu-features { margin-top: 36px; gap: 12px; }
+    .edu-feature-text strong { font-size: 0.84rem; }
+    .edu-right { padding: 32px 24px; }
+    .edu-card { padding: 36px 32px 32px; }
+  }
+
+  /* Tablet portrait (481px – 768px) */
+  @media (max-width: 768px) and (min-width: 481px) {
+    .edu-register-root { flex-direction: column; }
     .edu-left { display: none; }
-    .edu-right { padding: 24px 16px; }
-    .edu-card { padding: 32px 24px 28px; }
+    .edu-right {
+      flex: 1;
+      padding: 32px 24px;
+      align-items: flex-start;
+      padding-top: 48px;
+    }
+    .edu-card {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 36px 32px 32px;
+      border-radius: 20px;
+    }
+    .edu-card-header h2 { font-size: 1.5rem; }
+    .edu-role-tab { font-size: 0.82rem; padding: 10px 6px; }
+    .edu-role-tab .role-icon { font-size: 20px; }
+    .edu-toast {
+      top: auto;
+      bottom: 20px;
+      right: 50%;
+      transform: translateX(50%);
+      max-width: calc(100vw - 32px);
+    }
+    .edu-toast.hide {
+      animation: toastOutMobile 0.3s ease forwards;
+    }
+  }
+
+  /* Mobile (up to 480px) */
+  @media (max-width: 480px) {
+    .edu-register-root { flex-direction: column; }
+    .edu-left { display: none; }
+
+    .edu-right {
+      flex: 1;
+      padding: 16px 12px;
+      align-items: flex-start;
+    }
+
+    .edu-card {
+      max-width: 100%;
+      padding: 28px 20px 24px;
+      border-radius: 18px;
+      margin: 0;
+      /* Remove blur on low-end mobile for perf */
+      backdrop-filter: blur(12px);
+    }
+
+    .edu-card-header { margin-bottom: 24px; }
+    .edu-card-header h2 { font-size: 1.35rem; }
+    .edu-card-header p  { font-size: 0.82rem; }
+
+    .edu-progress { margin-bottom: 20px; }
+
+    .edu-role-tabs {
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .edu-role-tab {
+      padding: 8px 4px;
+      font-size: 0.75rem;
+      border-radius: 8px;
+      gap: 3px;
+    }
+    .edu-role-tab .role-icon { font-size: 17px; }
+
+    .edu-field { margin-bottom: 14px; }
+    .edu-field label { font-size: 0.72rem; }
+
+    .edu-input {
+      padding: 11px 12px 11px 38px;
+      font-size: 16px; /* prevents iOS zoom on focus */
+      border-radius: 10px;
+    }
+    .edu-input-icon { left: 12px; font-size: 14px; }
+
+    .edu-divider { margin: 16px 0 14px; }
+    .edu-divider span { font-size: 0.7rem; }
+
+    .edu-submit {
+      padding: 13px;
+      font-size: 0.9rem;
+      border-radius: 10px;
+    }
+
+    .edu-login-link { margin-top: 18px; font-size: 0.82rem; }
+
+    /* Toast — bottom center on mobile */
+    .edu-toast {
+      top: auto;
+      bottom: 16px;
+      right: 50%;
+      transform: translateX(50%);
+      max-width: calc(100vw - 24px);
+      width: max-content;
+      font-size: 0.8rem;
+      padding: 12px 16px;
+    }
+    .edu-toast.hide {
+      animation: toastOutMobile 0.3s ease forwards;
+    }
+
+    /* Reduce orb size on mobile */
+    .edu-orb-1 { width: 240px; height: 240px; opacity: 0.12; }
+    .edu-orb-2 { width: 180px; height: 180px; opacity: 0.12; }
+    .edu-orb-3 { width: 120px; height: 120px; opacity: 0.1; }
+  }
+
+  /* Very small phones (360px and below) */
+  @media (max-width: 360px) {
+    .edu-card { padding: 24px 16px 20px; }
+    .edu-card-header h2 { font-size: 1.2rem; }
+    .edu-role-tab { font-size: 0.7rem; padding: 7px 3px; }
+    .edu-role-tab .role-icon { font-size: 15px; }
+    .edu-input { font-size: 15px; padding: 10px 10px 10px 34px; }
+    .edu-input-icon { left: 10px; }
+  }
+
+  @keyframes toastOutMobile {
+    from { opacity:1; transform: translateX(50%) translateY(0); }
+    to   { opacity:0; transform: translateX(50%) translateY(20px); }
   }
 `;
 
