@@ -3,145 +3,92 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first');
+dns.setDefaultResultOrder('ipv4first'); // Render/IPv6 Fix
 
-// --- 1. Nodemailer Transporter Configuration (Render Friendly) ---
+// Transporter global configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  },
-  pool: true
+  }
 });
 
-// --- 2. User Registration ---
+// 1. REGISTER
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-    const user = await User.create({ name, email, password, role });
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+    const user = await User.create(req.body);
+    res.status(201).json({ message: "User Registered" });
+  } catch (err) { res.status(400).json({ error: err.message }); }
 };
 
-// --- 3. User Login ---
+// 2. LOGIN
 exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jwt.sign(
-        { id: user._id, role: user.role },
-        process.env.JWT_SECRET || "my_super_secret_key_123",
-        { expiresIn: '1d' }
-      );
-      res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
-    } else {
-      res.status(401).json({ message: "Invalid Credentials" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (user && (await bcrypt.compare(password, user.password))) {
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || "123", { expiresIn: '1d' });
+    res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
+  } else { res.status(401).json({ message: "Invalid credentials" }); }
 };
 
-// --- 4. Forgot Password (OTP Generation & Sending) ---
+// 3. FORGOT PASSWORD (FIXED LOGIC)
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log("Password Reset requested for:", email);
+    console.log("Forgot password for:", email);
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found with this email" });
+    if (!user) return res.status(404).json({ message: "No account found with this email" });
 
-    // 6-digit OTP Generate karein
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // OTP aur Expiry database mein save karein (10 mins valid)
     user.resetPasswordOTP = otp;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    
+    // IMPORTANT: Database mein save karne se pehle frontend ko response bhej dein
+    // Taaki SMTP delays ki wajah se CORS Timeout na ho.
+    res.status(200).json({ message: "Success! Check your email in 1 minute." });
+
     await user.save();
 
-    console.log("OTP successfully saved in DB");
-    res.status(200).json({ message: "Request received! If user exists, OTP will arrive shortly." });
-
+    // BACKGROUND MAIL SENDING
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: 'EduTrack OTP',
-      text: `Your OTP is: ${otp}`
+      to: email,
+      subject: 'EduTrack Password Reset',
+      text: `Your Reset OTP: ${otp}. Valid for 10 minutes.`
     };
 
-    // Nodemailer se email bhejie
     transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error("Email Error (Background):", error);
-        else console.log("Email Sent Success (Background):", info.response);
+        if (error) console.error("SMTP Error:", error);
+        else console.log("Email Sent Success:", info.response);
     });
 
   } catch (error) {
-    console.error("General Error:", error);
-    if(!res.headersSent) {
-        res.status(500).json({ error: "Something went wrong" });
-    }
+    console.error("Critical Server Error:", error.message);
+    if (!res.headersSent) res.status(500).json({ message: "Server error" });
   }
 };
 
-// --- 5. Verify OTP ---
+// 4. VERIFY OTP
 exports.verifyOTP = async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({
-      email,
-      resetPasswordOTP: otp,
-      resetPasswordExpires: { $gt: Date.now() } // Check if not expired
-    });
-
-    if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
-
-    res.json({ message: "OTP Verified! Proceed to reset password." });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  const user = await User.findOne({ email: req.body.email, resetPasswordOTP: req.body.otp, resetPasswordExpires: { $gt: Date.now() } });
+  if (!user) return res.status(400).json({ message: "Invalid or expired OTP" });
+  res.json({ message: "Verified" });
 };
 
-// --- 6. Get Current User Data ---
-exports.getMe = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// --- 7. Reset Password (Final Step) ---
+// 5. RESET PASSWORD
 exports.resetPassword = async (req, res) => {
-  try {
-    const { email, otp, newPassword } = req.body;
-    
-    const user = await User.findOne({
-      email,
-      resetPasswordOTP: otp,
-      resetPasswordExpires: { $gt: Date.now() }
-    });
+  const user = await User.findOne({ email: req.body.email, resetPasswordOTP: req.body.otp });
+  if (!user) return res.status(400).json({ message: "Failed" });
+  user.password = req.body.newPassword;
+  user.resetPasswordOTP = undefined;
+  await user.save();
+  res.json({ message: "Updated" });
+};
 
-    if (!user) return res.status(400).json({ message: "Request failed, please try again." });
-
-    // Password Update karein
-    user.password = newPassword; 
-    // Reset fields ko clear karein
-    user.resetPasswordOTP = undefined;
-    user.resetPasswordExpires = undefined;
-    
-    await user.save(); // User Model ka 'pre-save' hook automatically hash kar dega
-
-    console.log("Password Reset complete for:", email);
-    res.json({ message: "Password updated successfully! You can login now." });
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// 6. ME
+exports.getMe = async (req, res) => {
+  const user = await User.findById(req.user.id).select("-password");
+  res.json(user);
 };
