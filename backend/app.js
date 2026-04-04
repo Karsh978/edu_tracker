@@ -82,7 +82,9 @@ app.get('/api/auth/test', (req, res) => {
 // ... existing imports ...
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "http://localhost:3000" }
+  cors: {
+     origin: "https://edu-tracker-rho.vercel.app",
+     }
 });
 app.set('socketio', io);
 

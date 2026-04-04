@@ -13,7 +13,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api';
 
 /* ─── Google Fonts injected once ─── */
 const injectFonts = () => {
@@ -393,9 +393,10 @@ const VerifyOTP = () => {
     setLoading(true);
     setStatus({ msg: '', type: '' });
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/verify-otp', {
-        email: rawEmail, otp,
-      });
+  const res = await API.post('/auth/verify-otp', {
+    email: rawEmail, 
+    otp: otp,
+  });
       if (res.data?.message?.includes('Verified')) {
         triggerSuccess();
         setStatus({ msg: 'Verified! Redirecting…', type: 'success' });

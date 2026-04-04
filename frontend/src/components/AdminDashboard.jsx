@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import API from '../api';
 import {
   Chart as ChartJS, ArcElement, Tooltip, Legend,
   CategoryScale, LinearScale, BarElement
@@ -335,72 +335,71 @@ const AdminDashboard = () => {
   const [attStatus, setAttStatus] = useState('Present');
   
 
-  const fetchData = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    const headers = { Authorization: `Bearer ${token}` };
+const fetchData = useCallback(async () => {
     try {
-      const resCourses = await axios.get('http://localhost:5000/api/courses', { headers });
+      // Localhost aur headers ki tension khatam
+      const resCourses = await API.get('/courses');
       setCourses(resCourses.data);
-      const resEnroll = await axios.get('http://localhost:5000/api/enroll', { headers });
+      
+      const resEnroll = await API.get('/enroll');
       setEnrollments(resEnroll.data);
-      const resReport = await axios.get('http://localhost:5000/api/reports/all', { headers });
+      
+      const resReport = await API.get('/reports/all');
       setFullReport(resReport.data);
-    } catch (err) { console.log("Fetch Error:", err); }
-  }, []);
+    } catch (err) { 
+      console.log("Fetch Error:", err); 
+    }
+}, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
-
-  const getHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` });
-
-  const handleAddCourse = async (e) => {
+  // 1. Add Course
+const handleAddCourse = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/api/courses', { title, courseCode: code }, { headers: getHeaders() });
+    await API.post('/courses', { title, courseCode: code }); // Headers ki zaroorat nahi, api.js de dega
     setTitle(''); setCode(''); fetchData(); alert("Course Created!");
-  };
+};
 
-  const handleEnroll = async (e) => {
+// 2. Enroll
+const handleEnroll = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/enroll', { studentId, courseId: selectedCourse }, { headers: getHeaders() });
+      await API.post('/enroll', { studentId, courseId: selectedCourse });
       setStudentId(''); fetchData(); alert("Student Enrolled!");
     } catch (err) { alert(err.response?.data?.message || "Enrollment Failed"); }
-  };
+};
 
-  const handleAddGrade = async (e) => {
+// 3. Add Grade
+const handleAddGrade = async (e) => {
     e.preventDefault();
     try {
-      // Find the student ID from the selected enrollment
       const enroll = enrollments.find(en => en._id === selectedEnrollment);
       if (!enroll) return alert("Select an enrollment first!");
 
-      await axios.post('http://localhost:5000/api/grades', {
-        studentId: enroll.student._id, // Extracts student ID
+      await API.post('/grades', {
+        studentId: enroll.student._id,
         enrollmentId: selectedEnrollment,
         marks: marks
-      }, {
-        headers: getHeaders()
       });
 
-      setMarks('');
-      fetchData();
-      alert("Grade Added!");
-    } catch (err) {
-      console.error(err);
-      alert("Error adding grade");
-    }
-  };
+      setMarks(''); fetchData(); alert("Grade Added!");
+    } catch (err) { alert("Error adding grade"); }
+};
 
-  const handleMarkAttendance = async (e) => {
+// 4. Mark Attendance
+const handleMarkAttendance = async (e) => {
     e.preventDefault();
     try {
       const enroll = enrollments.find(en => en._id === selectedEnrollment);
       if (!enroll) return alert("Select a student first!");
-      await axios.post('http://localhost:5000/api/attendance', {
+      
+      await API.post('/attendance', {
         studentId: enroll.student._id, courseId: enroll.course._id, status: attStatus
-      }, { headers: getHeaders() });
+      });
       alert("Attendance Marked!"); fetchData();
     } catch (err) { alert("Error marking attendance"); }
-  };
+};
+    
+
+
 
   const downloadCSV = () => {
     let csv = "Student,Course,Marks,Grade\n";

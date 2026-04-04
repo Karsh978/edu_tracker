@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api';
 import { useNavigate, Link } from 'react-router-dom';
 
 const styles = `
@@ -507,11 +507,13 @@ const Register = () => {
     setTimeout(() => setToast(null), 3200);
   };
 
-  const handleRegister = async (e) => {
+const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/register', formData);
+      // 'const res =' hata diya, sirf await rakha
+      await API.post('/auth/register', formData); 
+      
       showToast('Registration successful! Redirecting…', 'success');
       setTimeout(() => navigate('/login'), 1600);
     } catch (err) {
@@ -519,7 +521,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  };
+};
 
   const strength = getStrength(formData.password);
   const activeStep = formData.name && formData.email && formData.password ? 2 : formData.name ? 1 : 0;

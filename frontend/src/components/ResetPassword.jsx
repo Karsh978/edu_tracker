@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api';
 
 /* ── 1. Helper Styles & Animations ── */
 const injectStyles = () => {
@@ -95,7 +95,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/reset-password', { email, otp, newPassword });
+       const res = await API.post('/auth/reset-password', { email, otp, newPassword });
       setSuccess(true);
       localStorage.removeItem('resetEmail');
       localStorage.removeItem('resetOTP');

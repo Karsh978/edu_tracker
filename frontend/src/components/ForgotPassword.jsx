@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api';
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@300;400;500&display=swap');
@@ -279,7 +279,7 @@ const ForgotPassword = () => {
     setError('');
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+  await API.post('/auth/forgot-password', { email });
       alert("OTP Sent! Check your email.");
       localStorage.setItem('resetEmail', email);
       navigate('/verify-otp');

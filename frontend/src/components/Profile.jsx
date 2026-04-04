@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api'; // Centralized API config
 
 const Profile = () => {
   const [formData, setFormData] = useState({
     name: '', mobile: '', gender: 'Male', dob: '', bio: '', department: '', profileImage: ''
   });
   const [file, setFile] = useState(null);
-  const token = localStorage.getItem('token');
 
-  // 1. Page load par data fetch karein
+  // 1. Fetch Profile Data
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!token) return;
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
+        const res = await API.get('/auth/me'); 
         const userData = res.data;
         if (userData.dob) {
           userData.dob = new Date(userData.dob).toISOString().split('T')[0];
@@ -27,9 +22,9 @@ const Profile = () => {
       }
     }; 
     fetchProfile();
-  }, [token]);
+  }, []);
 
-  // 2. Photo Upload Function
+  // 2. Photo Upload Function (URL Fixed)
   const uploadPhoto = async () => {
     if (!file) return alert("Pehle file select karein!");
 
@@ -37,11 +32,9 @@ const Profile = () => {
     data.append('profileImage', file);
 
     try {
-      const res = await axios.put('http://localhost:5000/api/student/profile-picture', data, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}` 
-        }
+      // localhost hata kar 'API.put' use kiya aur headers ki tension khatam
+      const res = await API.put('/student/profile-picture', data, {
+        headers: { 'Content-Type': 'multipart/form-data' } 
       });
       setFormData(prev => ({ ...prev, profileImage: res.data.imageUrl }));
       alert("Photo Updated! 📸");
@@ -51,19 +44,25 @@ const Profile = () => {
     }
   };
 
-  // 3. Profile Details Update (Name, DOB, etc.)
+  // 3. Profile Details Update (URL Fixed)
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put('http://localhost:5000/api/student/profile', formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // localhost hata kar 'API.put' use kiya
+      const res = await API.put('/student/profile', formData);
       alert("Profile Info Updated Successfully! 🎉");
       localStorage.setItem('userName', res.data.name);
     } catch (err) {
       console.error("Update Error:", err.response?.data);
       alert("Update Failed!");
     }
+  };
+
+  // Helper for dynamic image path
+  const getImageUrl = (path) => {
+    if (!path) return 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix';
+    // Agar path localhost se aa raha hai toh usse Render URL se replace karein
+    return `https://edutrack-api-8t5g.onrender.com${path}`;
   };
 
   return (
@@ -74,7 +73,7 @@ const Profile = () => {
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
         <div style={{ marginBottom: '15px' }}>
           <img 
-            src={formData.profileImage ? `http://localhost:5000${formData.profileImage}` : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'} 
+            src={getImageUrl(formData.profileImage)} 
             alt="Profile"
             style={{ width: '130px', height: '130px', borderRadius: '50%', objectFit: 'cover', border: '4px solid #1a73e8' }} 
             onError={(e) => { e.target.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'; }}

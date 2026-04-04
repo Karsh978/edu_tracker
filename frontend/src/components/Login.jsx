@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import axios from 'axios';
+import API from '../api'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Backend Login API call
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+     const res = await API.post('/auth/login', { email, password });
      
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('role', res.data.user.role);
@@ -20,9 +20,10 @@ const Login = () => {
 
       alert("Login Success!");
      window.location.href = '/dashboard';  
-    } catch (err) {
-      alert("Login Failed: " + err.response.data.message);
-    }
+    }  catch (err) {
+  console.log("Full Error Object:", err); // Debugging ke liye
+  alert("Login Failed: " + (err.response?.data?.message || "Server is waking up, please wait 30 seconds and try again."));
+}
   };
 
   return (

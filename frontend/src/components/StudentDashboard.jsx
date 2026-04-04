@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../api';
 import Profile from './Profile';
-import { io } from "socket.io-client";
+
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
-const socket = io("http://localhost:5000");
+import { io } from "socket.io-client";
+const socket = io("https://edutrack-api-8t5g.onrender.com");
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -327,10 +328,9 @@ useEffect(() => {
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
     try {
-      const resGrades = await axios.get('http://localhost:5000/api/student/my-grades', { headers });
-      const resAttendance = await axios.get('http://localhost:5000/api/student/my-attendance', { headers });
-      const resUser = await axios.get('http://localhost:5000/api/auth/me', { headers });
-
+      const resGrades = await API.get('/student/my-grades');
+        const resAttendance = await API.get('/student/my-attendance');
+        const resUser = await API.get('/auth/me');
       setGrades(resGrades.data);
       setAttendance(resAttendance.data);
       setUserData(resUser.data);
@@ -396,9 +396,13 @@ useEffect(() => {
             
 <div className="sb-avatar">
   {userData?.profileImage ? (
-    <img src={`http://localhost:5000${userData.profileImage}`} style={{width:'100%', height:'100%', borderRadius:'50%'}} alt='wait' />
+    <img 
+      src={`https://edutrack-api-8t5g.onrender.com${userData.profileImage}`} 
+      style={{width:'100%', height:'100%', borderRadius:'50%', objectFit: 'cover'}} 
+      alt='User Profile' 
+    />
   ) : (
-    userName.charAt(0).toUpperCase()
+    userName ? userName.charAt(0).toUpperCase() : 'U'
   )}
 </div>
             <div className="sb-profile-info">

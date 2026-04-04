@@ -1,14 +1,12 @@
 import axios from 'axios';
 
-
 const API = axios.create({
- 
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  // Localhost hata kar apna Render wala link daalein (Dhyan se /api zarur lagayein)
+  baseURL: 'https://edutrack-api-8t5g.onrender.com/api', 
 });
 
-// api.js ke interceptor ko aise update karein:
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem('token'); 
+  const token = localStorage.getItem('token');
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
   }
