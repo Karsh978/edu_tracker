@@ -568,7 +568,7 @@ const handleFeePayment = async () => {
     const { data: order } = await API.post('/payment/create-order', { amount: feeAmount });
 
     const options = {
-      key: "YOUR_RAZORPAY_KEY_ID", // Best practice: Get this from backend or .env
+      key: "rzp_test_SaKtUmjDUY5XuE", // Best practice: Get this from backend or .env
       amount: order.amount,
       currency: "INR",
       name: "EduTrack Portal",
