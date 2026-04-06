@@ -13,6 +13,7 @@ const studentController =require('./controllers/studentController');
 const upload = require('./middleware/uploadMiddleware');
 const http = require('http');
 const { Server } = require('socket.io');
+const paymentController = require('./controllers/paymentController');
 
 
 
@@ -31,6 +32,11 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
+
+//payment gatway
+
+app.post('/api/payment/create-order', protect, paymentController.createOrder);
+app.post('/api/payment/verify', protect, paymentController.verifyPayment);
 //see only logged user //
 app.get('/api/courses', protect, courseController.getAllCourses);
 // only admin can create course //

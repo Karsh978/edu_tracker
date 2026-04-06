@@ -529,6 +529,69 @@ const StudentDashboard = () => {
     { key: 'timetable', icon: '🕐', label: 'Timetable' },
   ];
 
+  const handlePayment = async () => {
+  // 1. Backend se Order ID mangayein
+  const { data: order } = await API.post('/payment/order', { amount: 500 }); // Rs 500
+
+  const options = {
+    key: "YOUR_RAZORPAY_KEY_ID", // Dashboard se copy karein
+    amount: order.amount,
+    currency: order.currency,
+    name: "EduTrack University",
+    description: "Course Enrollment Fee",
+    order_id: order.id,
+    handler: async (response) => {
+      // 2. Payment successful hone ke baad verify karein
+      try {
+        const verifyRes = await API.post('/payment/verify', response);
+        alert("Fee Paid Successfully! 🎉");
+      } catch (err) {
+        alert("Verification failed!");
+      }
+    },
+    prefill: {
+      name: "Jivan Kumar",
+      email: "jivan@example.com",
+    },
+    theme: { color: "#1a73e8" },
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.open();
+};
+
+const handleFeePayment = async () => {
+  try {
+    const feeAmount = 1000; // Amount in Rupees
+    
+    // 1. Backend se order mangayein
+    const { data: order } = await API.post('/payment/create-order', { amount: feeAmount });
+
+    const options = {
+      key: "YOUR_RAZORPAY_KEY_ID", // Best practice: Get this from backend or .env
+      amount: order.amount,
+      currency: "INR",
+      name: "EduTrack Portal",
+      description: "University Semester Fee",
+      order_id: order.id,
+      handler: async (response) => {
+        const verifyRes = await API.post('/payment/verify', response);
+        alert(verifyRes.data.message);
+        // Refresh history
+      },
+      prefill: {
+        name: localStorage.getItem('userName'),
+        email: "student@example.com"
+      },
+      theme: { color: "#1a73e8" }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (error) {
+    console.error("Payment Error:", error);
+  }
+};
   return (
     <>
       <style>{CSS}</style>
@@ -652,6 +715,9 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                 </div>
+                <button onClick={handleFeePayment} style={{ background: '#F5A623', padding: '10px 20px', border: 'none', color: '#fff', borderRadius: '8px' }}>
+  💳 Pay Semester Fee
+</button>
 
                 <div className="stats-grid">
                   {[
