@@ -9,17 +9,20 @@ const CodeEditor = () => {
   const [loading, setLoading] = useState(false);
 
 
-  const runCode = async () => {
+ const runCode = async () => {
     setLoading(true);
     try {
-      // Hum ye code backend ko bhejenge
-      const res = await API.post('/compile', { code, language });
+     
+      const res = await API.post('/compile', { 
+        code: code,      // Jo code likha hai
+        language: language // "python", "cpp", ya "java"
+      });
       setOutput(res.data.output);
     } catch (err) {
-      setOutput("Error: Compiler busy or Syntax Error");
+      setOutput("Error: Backend is offline or Timeout");
     }
     setLoading(false);
-  };
+};
 
   return (
     <div style={{ padding: '20px', background: '#1e1e1e', borderRadius: '10px', color: '#fff' }}>
