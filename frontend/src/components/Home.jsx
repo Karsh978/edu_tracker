@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-
+import CodeEditor from './CodeEditor';
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeNav, setActiveNav] = useState("");
@@ -919,6 +919,35 @@ const Home = () => {
             <div style={logoMark}>E</div>
             <span style={logoText}>EduTrack</span>
           </div>
+
+  {/*    compiler */}
+ <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh' }}>
+      
+      {/* 1. HERO SECTION (Wahi purana) */}
+      <div style={{ textAlign: 'center', padding: '60px 20px', background: '#1a73e8', color: '#fff' }}>
+        <h1>EduTrack Coding Hub</h1>
+        <p>Digitizing Management & Learning for the future.</p>
+        <Link to="/login">
+          <button style={{ padding: '12px 25px', background: '#fff', color: '#1a73e8', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor:'pointer' }}>
+            Enter Portal / Login
+          </button>
+        </Link>
+      </div>
+       {/* 2. FREE CODING LAB SECTION (NAYA SECTION) */}
+      <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h2 style={{ color: '#333' }}>🚀 Free Coding Lab</h2>
+            <p style={{ color: '#666' }}>No Login Required! Practice C++, Python, or Java right here.</p>
+        </div>
+        
+        {/* HAMARA CODE EDITOR COMPONENT */}
+        <CodeEditor /> 
+
+      </div>
+      </div>
+
+
+
 
           <div style={navLinks} className="nav-links-desktop">
             <a href="#features" style={navLink} className="nav-link-item">Features</a>

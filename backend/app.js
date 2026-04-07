@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
+const compilerController = require('./controllers/compilerController');
 const authController = require('./controllers/authController');
 const courseController = require('./controllers/courseController');
 const { protect, authorize } = require('./middleware/authMiddleware');
@@ -72,6 +73,9 @@ app.get('/api/student/my-attendance',protect,studentController.getMyAttendance);
 // Auth Routes
 app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
+
+//compiler editor
+app.post('/api/compile', compilerController.compileCode);
 
 //forgot - reset -verify//
 app.post('/api/auth/forgot-password', authController.forgotPassword);
