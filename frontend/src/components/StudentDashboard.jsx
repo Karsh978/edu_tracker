@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import API from '../api';
 import Profile from './Profile';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
 import CalendarHeatmap from 'react-calendar-heatmap';
@@ -566,46 +566,37 @@ const [paymentDone, setPaymentDone] = useState(false);
 
 //pdf after  pyment is done
 const generatePDFReceipt = (paymentData, studentName) => {
+    console.log("PDF generation started...");
     try {
         const doc = new jsPDF();
-
+        
         // Header
         doc.setFontSize(22);
-        doc.setTextColor(26, 115, 232);
-        doc.text("EduTrack University", 105, 20, { align: "center" });
+        doc.text("EduTrack University - Receipt", 20, 20);
         
-        doc.setFontSize(12);
-        doc.setTextColor(100);
-        doc.text("Official Payment Receipt", 105, 28, { align: "center" });
-
-        // Transaction Details
-        doc.autoTable({
-            startY: 40,
-            head: [['Student Name', 'Transaction ID', 'Status']],
-            body: [
-                [studentName, paymentData.razorpay_payment_id || 'N/A', 'SUCCESSFUL / PAID']
-            ],
-        });
+        // Table Details
+        const tableBody = [
+            ['Student Name', studentName || 'N/A'],
+            ['Payment ID', paymentData.razorpay_payment_id || 'N/A'],
+            ['Amount Paid', 'INR 1,000.00'],
+            ['Status', 'PAID / SUCCESSFUL'],
+            ['Date', new Date().toLocaleString()]
+        ];
 
         doc.autoTable({
-            startY: doc.lastAutoTable.finalY + 10,
-            head: [['Description', 'Amount (INR)']],
-            body: [
-                ['University Semester Fee', '1,000.00'],
-                ['Total', '1,000.00']
-            ],
+            startY: 30,
+            head: [['Field', 'Description']],
+            body: tableBody,
             theme: 'grid'
         });
 
-        // Footer
-        doc.text("Thank you for your payment!", 105, doc.lastAutoTable.finalY + 20, { align: "center" });
-
-        // Force download
-        doc.save(`Receipt_${paymentData.razorpay_payment_id || 'download'}.pdf`);
-        console.log("PDF Triggered successfully");
+        // 🚨 CRITICAL FIX: Direct Download
+        const pdfName = `Receipt_${paymentData.razorpay_payment_id}.pdf`;
+        doc.save(pdfName);
         
+        console.log("✅ PDF should be downloading now: ", pdfName);
     } catch (error) {
-        console.error("PDF Error:", error);
+        console.error("❌ PDF Crash:", error);
     }
 };
 
