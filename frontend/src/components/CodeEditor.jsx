@@ -11,23 +11,20 @@ const CodeEditor = () => {
 
 
 const runCode = async () => {
-  setLoading(true);
-  setOutput("⚙️ Running...");
-  
-  try {
-    const response = await axios.post('https://edutrack-api-8t5g.onrender.com/api/compile', {
-      code: code,
-      language: language
-    });
-    
-    // Piston API ka response thoda gehra hota hai, check if backend sends it right
-    setOutput(response.data.output);
-  } catch (err) {
-    console.error("Error logic hit:", err);
-    // Agar 401 aa raha hai, toh check karein ki kya login token toh nahi mang raha backend
-    setOutput(err.response?.data?.output || "Error: " + err.message);
-  }
-  setLoading(false);
+    setLoading(true);
+    try {
+        const res = await axios({
+            method: 'post',
+            url: 'https://edutrack-api-8t5g.onrender.com/api/compile',
+            data: { code, language },
+            headers: {} // <--- Isse 401 wala check bypass ho jayega
+        });
+        setOutput(res.data.output);
+    } catch (err) {
+        console.error("401 Check:", err);
+        setOutput("Server Error: 401 (Please check backend route order)");
+    }
+    setLoading(false);
 };
 
   return (

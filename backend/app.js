@@ -33,6 +33,8 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
+app.post('/api/compile', compilerController.compileCode);
+
 
 //payment gatway
 
@@ -76,10 +78,7 @@ app.post('/api/auth/login', authController.login);
 
 //compiler editor
 
-app.post('/api/compile', (req, res, next) => {
-    console.log("Compile Route hit!"); 
-    next();
-}, compilerController.compileCode);
+
 
 //forgot - reset -verify//
 app.post('/api/auth/forgot-password', authController.forgotPassword);
