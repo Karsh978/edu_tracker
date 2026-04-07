@@ -35,6 +35,7 @@ app.use('/uploads', express.static('uploads'));
 
 //payment gatway
 
+// backend/app.js mein ye path rakhein
 app.post('/api/payment/create-order', protect, paymentController.createOrder);
 app.post('/api/payment/verify', protect, paymentController.verifyPayment);
 //see only logged user //

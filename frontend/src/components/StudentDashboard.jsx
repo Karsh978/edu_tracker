@@ -532,8 +532,9 @@ const [paymentDone, setPaymentDone] = useState(false);
   ];
 
   const handlePayment = async () => {
+   
   // 1. Backend se Order ID mangayein
-  const { data: order } = await API.post('/payment/order', { amount: 500 }); // Rs 500
+  const { data: order } = await API.post('/payment/create-order', { amount: 1000 });  // Rs 500
 
    const options = {
     // ... basic settings ...
