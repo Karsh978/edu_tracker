@@ -617,16 +617,26 @@ const handleFeePayment = async () => {
     const options = {
       key: "rzp_test_SaKtUmjDUY5XuE", // Best practice: Get this from backend or .env
       amount: order.amount,
+      
       currency: "INR",
       name: "EduTrack Portal",
       description: "University Semester Fee",
       order_id: order.id,
+        modal: {
+    ondismiss: function() {
+      alert('Payment window closed');
+    }
+  },
       handler: async (response) => {
+         console.log("Razorpay Response Received:", response);
         const verifyRes = await API.post('/payment/verify', response);
+          console.log("Backend Verified:", verifyRes.data);
        if (verifyRes.data.success) {
-       alert("Success! Your receipt is downloading. Please wait...");
+        
 
          const sName = localStorage.getItem('userName') || "Student";
+       alert("Success! Your receipt is downloading. Please wait...");
+
        generatePDFReceipt(response, sName);
 
         setTimeout(() => {
