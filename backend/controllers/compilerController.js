@@ -6,34 +6,28 @@ exports.compileCode = async (req, res) => {
   try {
     const { code, language } = req.body;
     
-    // Safety check taaki crash na ho
     if (!code) return res.status(400).json({ output: "Please write some code first!" });
 
-    const langData = {
-      python: { name: "python", version: "3.10.0" },
-      cpp: { name: "cpp", version: "10.2.0" },
-      java: { name: "java", version: "15.0.2" }
+    // Version ko "*" kar do taaki Piston latest version khud chun le
+    const langConfig = {
+      python: "3.10.0",
+      cpp: "10.2.0",
+      java: "15.0.2"
     };
 
-    const config = langData[language] || langData.python;
-
-    console.log(`Sending to Piston API: ${config.name}`);
-
     const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
-      language: config.name,
-      version: config.version,
+      language: language,
+      version: langConfig[language] || "3.10.0",
       files: [{ content: code }]
-    }, {
-      timeout: 10000 // 10 sec timeout taaki server hang na ho
     });
 
-    res.json({ output: response.data.run.output || "Code executed successfully." });
+    // Piston ka output 'run.output' mein hota hai
+    const finalOutput = response.data.run.stderr || response.data.run.stdout || response.data.run.output;
+    res.json({ output: finalOutput });
 
   } catch (error) {
-    console.error("COMPILER LOG ERROR:", error.message);
-    res.status(500).json({ 
-        output: "Backend Connection Error: " + error.message,
-        tip: "Please try again, the external compiler is waking up." 
-    });
+    // Agar Piston crash karega toh yahan dikhega
+    console.error("PISTON API ERROR:", error.response?.data || error.message);
+    res.status(500).json({ output: "External Compiler Error: " + error.message });
   }
 };
