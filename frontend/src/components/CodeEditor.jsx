@@ -12,17 +12,18 @@ const CodeEditor = () => {
 
 const runCode = async () => {
     setLoading(true);
+    setOutput(""); 
     try {
-      // Dhyan de: Yahan hum seedha 'axios' use kar rahe hain na ki hamara wrapper
-      const res = await axios.post('https://edutrack-api-8t5g.onrender.com/api/compile', { 
-        code: code,
-        language: language 
-      });
-
-      setOutput(res.data.output);
+        const res = await axios.post('https://edutrack-api-8t5g.onrender.com/api/compile', { 
+            code: code,
+            language: language 
+        });
+        setOutput(res.data.output);
     } catch (err) {
-      console.error("401 Check:", err.response); // Debug karne ke liye
-      setOutput("Error: Request rejected. " + (err.response?.status === 401 ? "Please remove Auth check for compile route." : ""));
+        console.log("Raw Error:", err);
+        // Error handling fix
+        const errorMsg = err.response?.data?.output || "Error: Backend unreachable. Check if Render is live.";
+        setOutput(errorMsg);
     }
     setLoading(false);
 };

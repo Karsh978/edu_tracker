@@ -1,32 +1,31 @@
-const axios = require('axios'); // Check: Pehle install hona chahiye
+const axios = require('axios');
 
 exports.compileCode = async (req, res) => {
-  try {
-    const { code, language } = req.body;
+    try {
+        const { code, language } = req.body;
+        console.log(`Executing ${language} code...`); // Render logs mein dikhega
 
-    // Default configuration if language is missing
-    const langMap = {
-      python: { language: "python", version: "3.10.0" },
-      cpp: { language: "c++", version: "10.2.0" },
-      java: { language: "java", version: "15.0.2" }
-    };
+        const langData = {
+            python: { name: "python", version: "3.10.0" },
+            cpp: { name: "cpp", version: "10.2.0" },
+            java: { name: "java", version: "15.0.2" }
+        };
 
-    const selectedConfig = langMap[language] || langMap.python;
+        const config = langData[language] || langData.python;
 
-    const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
-      language: selectedConfig.language,
-      version: selectedConfig.version,
-      files: [{ content: code }]
-    });
+        const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
+            language: config.name,
+            version: config.version,
+            files: [{ content: code }]
+        });
 
-    if (response.data && response.data.run) {
-        res.json({ output: response.data.run.output });
-    } else {
-        res.json({ output: "No output received from execution engine." });
+        console.log("Compiler result received.");
+        res.status(200).json({ 
+            output: response.data.run.output || "Execution finished with no output." 
+        });
+
+    } catch (error) {
+        console.error("COMPILER CRASH:", error.message);
+        res.status(500).json({ output: "Compiler Server is busy. Error: " + error.message });
     }
-
-  } catch (error) {
-    console.error("COMPILER CRASH ERROR:", error.message);
-    res.status(500).json({ output: "Compiler Server is temporary busy. Try again." });
-  }
 };

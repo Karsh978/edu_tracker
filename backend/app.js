@@ -28,7 +28,7 @@ app.use(cors({
   origin: "https://edu-tracker-rho.vercel.app", 
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
+   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
