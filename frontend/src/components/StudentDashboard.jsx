@@ -445,7 +445,7 @@ const StudentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const userName = localStorage.getItem('userName') || 'Student';
   const [userData, setUserData] = useState(null);
-
+const [paymentDone, setPaymentDone] = useState(false);
   const heatmapData = attendance.map(a => ({
     date: a.date.split('T')[0],
     count: a.status === 'Present' ? 1 : 0
@@ -535,29 +535,30 @@ const StudentDashboard = () => {
   // 1. Backend se Order ID mangayein
   const { data: order } = await API.post('/payment/order', { amount: 500 }); // Rs 500
 
-  const options = {
-    key: "YOUR_RAZORPAY_KEY_ID", // Dashboard se copy karein
-    amount: order.amount,
-    currency: order.currency,
-    name: "EduTrack University",
-    description: "Course Enrollment Fee",
-    order_id: order.id,
+   const options = {
+    // ... basic settings ...
     handler: async (response) => {
-      // 2. Payment successful hone ke baad verify karein
       try {
+        console.log("Verifying with backend...");
         const verifyRes = await API.post('/payment/verify', response);
-        alert("Fee Paid Successfully! 🎉");
+        
+        if (verifyRes.data.success) {
+           // 🚨 ZAROORI: Redirect MAT karo! State badlo.
+           setPaymentDone(true); 
+
+           // 📄 PDF Generate karo
+           generatePDFReceipt(response, localStorage.getItem('userName') || "Student");
+
+           alert("Success! Your receipt is downloaded.");
+        }
       } catch (err) {
-        alert("Verification failed!");
+        alert("Payment verification failed.");
       }
     },
-    prefill: {
-      name: "Jivan Kumar",
-      email: "jivan@example.com",
-    },
-    theme: { color: "#1a73e8" },
+    modal: {
+        escape: false, // User 'Esc' dabe toh popup na band ho
+    }
   };
-
   const rzp = new window.Razorpay(options);
   rzp.open();
 };
@@ -785,6 +786,22 @@ const handleFeePayment = async () => {
                     </div>
                   </div>
                 </div>
+                  <div className="dashboard-layout">
+    {/* Sidebar & Header as usual */}
+
+    {paymentDone ? (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <h2 style={{color: 'green'}}>✅ Fees Paid Successfully!</h2>
+        <p>A copy of your receipt has been downloaded.</p>
+        <button onClick={() => setPaymentDone(false)} style={{padding:'10px', background:'#eee'}}>
+           Go Back to Overview
+        </button>
+      </div>
+    ) : (
+      // ... Aapka pura Dashboard content (Stats cards, table etc.) ...
+      <button onClick={handlePayment}>Pay Now</button>
+    )}
+  </div>
                 <button onClick={handleFeePayment} style={{ background: '#F5A623', padding: '10px 20px', border: 'none', color: '#fff', borderRadius: '8px' }}>
   💳 Pay Semester Fee
 </button>
