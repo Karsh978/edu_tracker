@@ -1,7 +1,7 @@
 const axios = require('axios');
 const dns = require('dns');
 
-// IPv4 priority fix for Render DNS issues
+// 1. Force Node.js to use IPv4 only (Render Fix)
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
 }
@@ -9,27 +9,41 @@ if (dns.setDefaultResultOrder) {
 exports.compileCode = async (req, res) => {
   try {
     const { code, language } = req.body;
-    console.log("==> Code Lab: Processing", language); // Agar log mein 'Codex' dikha toh code galat hai
+    console.log("==> Starting Compilation for:", language);
 
-    const langData = {
-      python: { l: "python", v: "3.10.0" },
-      cpp: { l: "cpp", v: "10.2.0" },
-      java: { l: "java", v: "15.0.2" }
+    const langConfig = {
+      python: { language: "python", version: "3.10.0" },
+      cpp: { language: "cpp", version: "10.2.0" },
+      java: { language: "java", version: "15.0.2" }
     };
 
-    const config = langData[language] || langData.python;
+    const config = langConfig[language] || langConfig.python;
 
-    // Is stable Piston Mirror ka use karein
-    const response = await axios.post("https://piston.pydis.com/api/v2/piston/execute", {
-      language: config.l,
-      version: config.v,
-      files: [{ content: code }]
-    }, { timeout: 15000 });
+    // 2. Using Piston API with IP-Family 4 support
+    const response = await axios({
+      method: 'post',
+      url: 'https://emkc.org/api/v2/piston/execute',
+      data: {
+        language: config.language,
+        version: config.version,
+        files: [{ content: code }]
+      },
+      // 3. Sabse Important: Render ke DNS ko bypass karne ke liye
+      family: 4, 
+      timeout: 15000 
+    });
 
-    res.json({ output: response.data.run.output });
+    if (response.data && response.data.run) {
+      console.log("==> Success!");
+      res.json({ output: response.data.run.output });
+    } else {
+      res.json({ output: "Executed with no output." });
+    }
 
   } catch (error) {
-    console.error("LOG ERROR:", error.message);
-    res.status(500).json({ output: "Compiler connection issue. Please try again." });
+    console.error("COMPILER CRASH:", error.message);
+    res.status(500).json({ 
+        output: "Compiler connection timed out. This is a common issue with Render Free tier. Please click Run again in 10 seconds." 
+    });
   }
 };
