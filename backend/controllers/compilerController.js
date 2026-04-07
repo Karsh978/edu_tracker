@@ -1,7 +1,7 @@
 const axios = require('axios');
 const dns = require('dns');
 
-// 🔥 RENDER CONNECTIVITY FIX: Render ko force karein IPv4 use karne ke liye
+// IPv4 priority fix for Render DNS issues
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
 }
@@ -9,33 +9,27 @@ if (dns.setDefaultResultOrder) {
 exports.compileCode = async (req, res) => {
   try {
     const { code, language } = req.body;
+    console.log("==> Code Lab: Processing", language); // Agar log mein 'Codex' dikha toh code galat hai
 
-    const langConfig = {
-      python: { language: "python", version: "3.10.0" },
-      cpp: { language: "c++", version: "10.2.0" },
-      java: { language: "java", version: "15.0.2" }
+    const langData = {
+      python: { l: "python", v: "3.10.0" },
+      cpp: { l: "cpp", v: "10.2.0" },
+      java: { l: "java", v: "15.0.2" }
     };
 
-    const config = langConfig[language] || langConfig.python;
+    const config = langData[language] || langData.python;
 
-    // --- Using a VERY Stable PythonDiscord Piston Mirror ---
-    // Ye mirror kabhi whitelist nahi maangta aur stable hai
+    // Is stable Piston Mirror ka use karein
     const response = await axios.post("https://piston.pydis.com/api/v2/piston/execute", {
-      language: config.language,
-      version: config.version,
+      language: config.l,
+      version: config.v,
       files: [{ content: code }]
-    }, { timeout: 15000 }); // 15 sec timeout taaki server busy na lage
+    }, { timeout: 15000 });
 
-    if (response.data && response.data.run) {
-        res.json({ output: response.data.run.output });
-    } else {
-        res.json({ output: "Compilation Finished with no results." });
-    }
+    res.json({ output: response.data.run.output });
 
   } catch (error) {
-    console.error("COMPILER LOG ERROR:", error.message);
-    res.status(500).json({ 
-        output: "Backend Connection Delay. Please try again in 5 seconds." 
-    });
+    console.error("LOG ERROR:", error.message);
+    res.status(500).json({ output: "Compiler connection issue. Please try again." });
   }
 };
