@@ -1,33 +1,40 @@
 const axios = require('axios');
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first'); // Render Connectivity Fix
 
 exports.compileCode = async (req, res) => {
   try {
     const { code, language } = req.body;
-    
-    if (!code) return res.status(400).json({ output: "Please write some code first!" });
 
-    // Version ko "*" kar do taaki Piston latest version khud chun le
-    const langConfig = {
-      python: "3.10.0",
-      cpp: "10.2.0",
-      java: "15.0.2"
+    // Codex API supports 'py', 'cpp', 'java' shortcodes
+    const langMap = {
+      python: "py",
+      cpp: "cpp",
+      java: "java"
     };
 
-    const response = await axios.post("https://emkc.org/api/v2/piston/execute", {
-      language: language,
-      version: langConfig[language] || "3.10.0",
-      files: [{ content: code }]
+    const targetLang = langMap[language] || "py";
+
+    console.log(`Switching to Codex API for ${targetLang}...`);
+
+    // We use CodeX API (One of the most stable free APIs now)
+    const response = await axios.post("https://api.codex.one/", {
+      code: code,
+      language: targetLang,
+      input: "" // User input (currently empty)
     });
 
-    // Piston ka output 'run.output' mein hota hai
-    const finalOutput = response.data.run.stderr || response.data.run.stdout || response.data.run.output;
-    res.json({ output: finalOutput });
+    // CodeX return format handles success and error nicely
+    if (response.data && response.data.output) {
+        res.json({ output: response.data.output });
+    } else if (response.data && response.data.error) {
+        res.json({ output: "Compiler Error: " + response.data.error });
+    } else {
+        res.json({ output: "Executed. No output recorded." });
+    }
 
   } catch (error) {
-    // Agar Piston crash karega toh yahan dikhega
-    console.error("PISTON API ERROR:", error.response?.data || error.message);
-    res.status(500).json({ output: "External Compiler Error: " + error.message });
+    console.error("COMPILER CRASH:", error.message);
+    res.status(500).json({ 
+        output: "Backend Connection Error: Codex server is busy. Try again later." 
+    });
   }
 };
