@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Editor from "@monaco-editor/react";
+import axios from 'axios'; 
 import API from '../api';
 
 const CodeEditor = () => {
@@ -9,17 +10,19 @@ const CodeEditor = () => {
   const [loading, setLoading] = useState(false);
 
 
- const runCode = async () => {
+const runCode = async () => {
     setLoading(true);
     try {
-     
-      const res = await API.post('/compile', { 
-        code: code,      // Jo code likha hai
-        language: language // "python", "cpp", ya "java"
+      // Dhyan de: Yahan hum seedha 'axios' use kar rahe hain na ki hamara wrapper
+      const res = await axios.post('https://edutrack-api-8t5g.onrender.com/api/compile', { 
+        code: code,
+        language: language 
       });
+
       setOutput(res.data.output);
     } catch (err) {
-      setOutput("Error: Backend is offline or Timeout");
+      console.error("401 Check:", err.response); // Debug karne ke liye
+      setOutput("Error: Request rejected. " + (err.response?.status === 401 ? "Please remove Auth check for compile route." : ""));
     }
     setLoading(false);
 };
