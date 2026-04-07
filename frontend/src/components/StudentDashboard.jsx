@@ -564,49 +564,48 @@ const StudentDashboard = () => {
 
 //pdf after  pyment is done
 const generatePDFReceipt = (paymentData, studentName) => {
-    const doc = new jsPDF();
+    try {
+        const doc = new jsPDF();
 
-    // 1. Header & Title
-    doc.setFontSize(22);
-    doc.setTextColor(26, 115, 232); // Blue color
-    doc.text("EduTrack University", 105, 20, { align: "center" });
-    
-    doc.setFontSize(12);
-    doc.setTextColor(100);
-    doc.text("Official Payment Receipt", 105, 28, { align: "center" });
-    doc.line(20, 35, 190, 35); // Horizontal line
+        // Header
+        doc.setFontSize(22);
+        doc.setTextColor(26, 115, 232);
+        doc.text("EduTrack University", 105, 20, { align: "center" });
+        
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text("Official Payment Receipt", 105, 28, { align: "center" });
 
-    // 2. Student & Payment Info
-    doc.setFontSize(11);
-    doc.setTextColor(0);
-    doc.text(`Receipt Date: ${new Date().toLocaleDateString()}`, 20, 45);
-    doc.text(`Transaction ID: ${paymentData.razorpay_payment_id}`, 20, 52);
-    doc.text(`Student Name: ${studentName}`, 20, 59);
+        // Transaction Details
+        doc.autoTable({
+            startY: 40,
+            head: [['Student Name', 'Transaction ID', 'Status']],
+            body: [
+                [studentName, paymentData.razorpay_payment_id || 'N/A', 'SUCCESSFUL / PAID']
+            ],
+        });
 
-    // 3. Table with Fee Details
-    doc.autoTable({
-        startY: 70,
-        head: [['Description', 'Amount (INR)', 'Status']],
-        body: [
-            ['Semester Fee Payment', '1,000.00', 'SUCCESS / PAID'],
-            ['Service Charge', '0.00', '-'],
-        ],
-        theme: 'grid',
-        headStyles: { fillStyle: [26, 115, 232] }
-    });
+        doc.autoTable({
+            startY: doc.lastAutoTable.finalY + 10,
+            head: [['Description', 'Amount (INR)']],
+            body: [
+                ['University Semester Fee', '1,000.00'],
+                ['Total', '1,000.00']
+            ],
+            theme: 'grid'
+        });
 
-    // 4. Footer & Signature Area
-    const finalY = doc.lastAutoTable.finalY + 20;
-    doc.setFontSize(14);
-    doc.text(`Total Paid: INR 1,000.00`, 20, finalY);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text("This is a computer-generated receipt and does not require a physical signature.", 105, finalY + 40, { align: "center" });
+        // Footer
+        doc.text("Thank you for your payment!", 105, doc.lastAutoTable.finalY + 20, { align: "center" });
 
-    // 5. Download the file
-    doc.save(`EduTrack_Receipt_${paymentData.razorpay_payment_id}.pdf`);
-}; 
+        // Force download
+        doc.save(`Receipt_${paymentData.razorpay_payment_id || 'download'}.pdf`);
+        console.log("PDF Triggered successfully");
+        
+    } catch (error) {
+        console.error("PDF Error:", error);
+    }
+};
 
 const handleFeePayment = async () => {
   try {
@@ -625,7 +624,15 @@ const handleFeePayment = async () => {
       handler: async (response) => {
         const verifyRes = await API.post('/payment/verify', response);
        if (verifyRes.data.success) {
-       alert("Payment Successful! Your receipt is downloading...");
+       alert("Success! Your receipt is downloading. Please wait...");
+
+         const sName = localStorage.getItem('userName') || "Student";
+       generatePDFReceipt(response, sName);
+
+        setTimeout(() => {
+          // window.location.href = '/dashboard'; 
+          alert("Registration Process Complete.");
+       }, 3000);
        
        // 2. PDF Download Trigger 
        generatePDFReceipt(response, localStorage.getItem('userName'));
@@ -644,6 +651,7 @@ const handleFeePayment = async () => {
     console.error("Payment Error:", error);
   }
 };
+
   return (
     <>
       <style>{CSS}</style>
