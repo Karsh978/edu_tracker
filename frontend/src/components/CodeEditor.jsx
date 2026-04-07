@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Editor from "@monaco-editor/react";
 import axios from 'axios'; 
-import API from '../api';
 
 const CodeEditor = () => {
   const [code, setCode] = useState("// Write your C++ or Python code here");
@@ -11,20 +10,26 @@ const CodeEditor = () => {
 
 
 const runCode = async () => {
-    setLoading(true);
-    try {
-        const res = await axios({
-            method: 'post',
-            url: 'https://edutrack-api-8t5g.onrender.com/api/compile',
-            data: { code, language },
-            headers: {} // <--- Isse 401 wala check bypass ho jayega
-        });
-        setOutput(res.data.output);
-    } catch (err) {
-        console.error("401 Check:", err);
-        setOutput("Server Error: 401 (Please check backend route order)");
-    }
-    setLoading(false);
+  setLoading(true);
+  setOutput("Processing...");
+  try {
+    // 1. We create a FRESH instance here so your global Token settings don't apply
+    const response = await axios({
+      method: 'post',
+      url: 'https://edutrack-api-8t5g.onrender.com/api/compile',
+      data: { code, language },
+      headers: { 'Content-Type': 'application/json' } 
+      // DONT add Authorization header here
+    });
+
+    setOutput(response.data.output);
+  } catch (err) {
+    console.error("401 Trace:", err.response);
+    setOutput(err.response?.status === 401 
+        ? "Access Denied: Backend order is still incorrect." 
+        : "Execution Failed.");
+  }
+  setLoading(false);
 };
 
   return (
