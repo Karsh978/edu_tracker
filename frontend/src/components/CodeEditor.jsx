@@ -11,21 +11,24 @@ const CodeEditor = () => {
 
 
 const runCode = async () => {
-    setLoading(true);
-    setOutput(""); 
-    try {
-        const res = await axios.post('https://edutrack-api-8t5g.onrender.com/api/compile', { 
-            code: code,
-            language: language 
-        });
-        setOutput(res.data.output);
-    } catch (err) {
-        console.log("Raw Error:", err);
-        // Error handling fix
-        const errorMsg = err.response?.data?.output || "Error: Backend unreachable. Check if Render is live.";
-        setOutput(errorMsg);
-    }
-    setLoading(false);
+  setLoading(true);
+  setOutput("⚙️ Running...");
+  
+  try {
+    const response = await axios({
+      method: 'post',
+      url: 'https://edutrack-api-8t5g.onrender.com/api/compile',
+      data: { code, language },
+      headers: { 'Content-Type': 'application/json' } 
+      
+    });
+    
+    setOutput(response.data.output);
+  } catch (err) {
+    console.log("Error logic hit:", err);
+    setOutput(err.response?.data?.output || "Server did not respond. Is it asleep?");
+  }
+  setLoading(false);
 };
 
   return (

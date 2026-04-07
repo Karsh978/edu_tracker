@@ -75,7 +75,11 @@ app.post('/api/auth/register', authController.register);
 app.post('/api/auth/login', authController.login);
 
 //compiler editor
-app.post('/api/compile', compilerController.compileCode);
+const compilerController = require('./controllers/compilerController');
+app.post('/api/compile', (req, res, next) => {
+    console.log("Compile Route hit!"); 
+    next();
+}, compilerController.compileCode);
 
 //forgot - reset -verify//
 app.post('/api/auth/forgot-password', authController.forgotPassword);
