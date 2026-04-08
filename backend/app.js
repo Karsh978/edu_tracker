@@ -3,6 +3,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
 const compilerController = require('./controllers/compilerController');
+const aiController = require('./controllers/aiController');
 const authController = require('./controllers/authController');
 const courseController = require('./controllers/courseController');
 const { protect, authorize } = require('./middleware/authMiddleware');
@@ -34,6 +35,7 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 app.post('/api/compile', compilerController.compileCode);
+app.post('/api/ai/chat', aiController.askAI);
 
 
 //payment gatway

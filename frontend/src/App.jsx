@@ -7,6 +7,7 @@ import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
 import VerifyOTP from './components/VerifyOTP';
 import ResetPassword from './components/ResetPassword';
+import EduBot from './components/EduBot';
 
 const ProtectedDashboard = () => {
   const role = localStorage.getItem('role');
@@ -33,6 +34,7 @@ function App() {
          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/login" element={<Login />} />
+           <EduBot /> {/* <--- every page show ai */}
         
         
         <Route path="/dashboard" element={<ProtectedDashboard />} />
