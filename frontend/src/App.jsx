@@ -27,6 +27,7 @@ const ProtectedDashboard = () => {
 function App() {
   return (
     <Router>
+      <div>
       <Routes>
         <Route path='/' element={<Home/>}   />
         <Route path="/register" element={<Register />} />
@@ -34,11 +35,14 @@ function App() {
          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/login" element={<Login />} />
-           <EduBot /> {/* <--- every page show ai */}
+          
         
         
         <Route path="/dashboard" element={<ProtectedDashboard />} />
       </Routes>
+       {/* ✅ EDU-BOT ) */}
+        <EduBot /> 
+        </div>
     </Router>
   );
 }
