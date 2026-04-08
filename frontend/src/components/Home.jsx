@@ -450,6 +450,146 @@ const Home = () => {
     }
   ];
 
+  /* ─── CODING LAB ─── */
+  const codingLabSection = {
+    padding: "80px clamp(20px, 6vw, 80px)",
+    background: "#0F1B35",
+    position: "relative",
+    overflow: "hidden"
+  };
+
+  const codingLabBg = {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundImage: `
+      radial-gradient(ellipse at 80% 20%, rgba(196,91,26,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 10% 80%, rgba(224,122,58,0.08) 0%, transparent 45%),
+      radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)
+    `,
+    backgroundSize: "auto, auto, 36px 36px",
+    pointerEvents: "none"
+  };
+
+  const codingLabHeader = {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: "40px",
+    flexWrap: "wrap",
+    gap: "20px",
+    position: "relative",
+    zIndex: 1
+  };
+
+  const codingLabBadge = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    background: "rgba(196,91,26,0.15)",
+    color: "#E07A3A",
+    border: "1px solid rgba(196,91,26,0.3)",
+    borderRadius: "100px",
+    padding: "6px 16px",
+    fontSize: "0.7rem",
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: "700",
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+    marginBottom: "14px"
+  };
+
+  const codingLabTitle = {
+    fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
+    fontWeight: "700",
+    color: "#FFFFFF",
+    fontFamily: "'Playfair Display', serif",
+    lineHeight: "1.2",
+    letterSpacing: "-0.5px",
+    marginBottom: "12px"
+  };
+
+  const codingLabDesc = {
+    fontSize: "clamp(0.85rem, 1.5vw, 0.95rem)",
+    color: "rgba(255,255,255,0.5)",
+    fontFamily: "'DM Sans', sans-serif",
+    lineHeight: "1.75",
+    maxWidth: "440px"
+  };
+
+  const codingLabPills = {
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    alignSelf: "flex-end"
+  };
+
+  const langPill = {
+    padding: "6px 14px",
+    borderRadius: "8px",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(255,255,255,0.1)",
+    color: "rgba(255,255,255,0.65)",
+    fontSize: "0.75rem",
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: "600",
+    letterSpacing: "0.04em"
+  };
+
+  const codingLabEditorWrap = {
+    position: "relative",
+    zIndex: 1,
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "20px",
+    overflow: "hidden",
+    boxShadow: "0 32px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)"
+  };
+
+  const editorTopBar = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "14px 20px",
+    background: "rgba(255,255,255,0.04)",
+    borderBottom: "1px solid rgba(255,255,255,0.07)"
+  };
+
+  const editorDots = {
+    display: "flex",
+    gap: "7px",
+    alignItems: "center"
+  };
+
+  const editorTabArea = {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center"
+  };
+
+  const editorTab = {
+    padding: "4px 14px",
+    borderRadius: "6px",
+    background: "rgba(196,91,26,0.2)",
+    border: "1px solid rgba(196,91,26,0.3)",
+    color: "#E07A3A",
+    fontSize: "0.75rem",
+    fontFamily: "'DM Sans', sans-serif",
+    fontWeight: "600"
+  };
+
+  const editorStatusDot = {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "0.72rem",
+    color: "rgba(255,255,255,0.35)",
+    fontFamily: "'DM Sans', sans-serif"
+  };
+
+  const codingLabInnerWrap = {
+    padding: "clamp(16px, 3vw, 28px)"
+  };
+
   /* ─── HIGHLIGHT STRIP ─── */
   const highlightStrip = {
     background: "#1A2B52",
@@ -794,6 +934,10 @@ const Home = () => {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(0.8); }
         }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
 
         .nav-link-item:hover {
           background: rgba(196,91,26,0.08) !important;
@@ -827,6 +971,15 @@ const Home = () => {
         .mobile-nav-link:hover { background: rgba(255,255,255,0.08); color: #E07A3A !important; }
 
         .hero-stat:last-child { border-right: none !important; }
+
+        .editor-dot {
+          width: 11px;
+          height: 11px;
+          border-radius: 50%;
+        }
+        .cursor-blink {
+          animation: blink 1.1s step-end infinite;
+        }
 
         /* ── RESPONSIVE ── */
 
@@ -884,6 +1037,10 @@ const Home = () => {
             flex-direction: column !important;
             text-align: center !important;
           }
+
+          .coding-lab-header {
+            flex-direction: column !important;
+          }
         }
 
         /* Large mobile / small tablet */
@@ -891,6 +1048,9 @@ const Home = () => {
           .highlight-strip-grid {
             grid-template-columns: 1fr !important;
             gap: 48px !important;
+          }
+          .coding-lab-header {
+            flex-direction: column !important;
           }
         }
       `}</style>
@@ -902,6 +1062,7 @@ const Home = () => {
           <button style={mobileClose} onClick={() => setMenuOpen(false)}>✕</button>
           <a href="#features" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Features</a>
           <a href="#about" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>About</a>
+          <a href="#coding-lab" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Coding Lab</a>
           <a href="#contact" style={mobileNavLink} className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Contact</a>
           <div style={{ display: "flex", gap: "12px", marginTop: "24px", flexWrap: "wrap", justifyContent: "center" }}>
             <Link to="/login" onClick={() => setMenuOpen(false)}>
@@ -920,14 +1081,10 @@ const Home = () => {
             <span style={logoText}>EduTrack</span>
           </div>
 
-  {/*    compiler */}
- 
-
-
-
           <div style={navLinks} className="nav-links-desktop">
             <a href="#features" style={navLink} className="nav-link-item">Features</a>
             <a href="#about" style={navLink} className="nav-link-item">About</a>
+            <a href="#coding-lab" style={navLink} className="nav-link-item">Coding Lab</a>
             <a href="#contact" style={navLink} className="nav-link-item">Contact</a>
           </div>
 
@@ -983,7 +1140,9 @@ const Home = () => {
                   <span>→</span>
                 </button>
               </Link>
-              <button style={secondaryBtn} className="secondary-btn">▶ Watch Demo</button>
+              <a href="#coding-lab">
+                <button style={secondaryBtn} className="secondary-btn">⌨ Try Coding Lab</button>
+              </a>
             </div>
 
             <div style={heroStats} className="hero-stats-wrap">
@@ -1041,31 +1200,56 @@ const Home = () => {
           </div>
         </section>
 
-        <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh' }}>
-      
-      {/* 1. HERO SECTION (Wahi purana) */}
-      <div style={{ textAlign: 'center', padding: '60px 20px', background: '#1a73e8', color: '#fff' }}>
-        <h1>EduTrack Coding Hub</h1>
-        <p>Digitizing Management & Learning for the future.</p>
-        <Link to="/login">
-          <button style={{ padding: '12px 25px', background: '#fff', color: '#1a73e8', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor:'pointer' }}>
-            Enter Portal / Login
-          </button>
-        </Link>
-      </div>
-       {/* 2. FREE CODING LAB SECTION (NAYA SECTION) */}
-      <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h2 style={{ color: '#333' }}>🚀 Free Coding Lab</h2>
-            <p style={{ color: '#666' }}>No Login Required! Practice C++, Python, or Java right here.</p>
-        </div>
-        
-        {/* HAMARA CODE EDITOR COMPONENT */}
-        <CodeEditor /> 
+        {/* ── CODING LAB ── */}
+        <section id="coding-lab" style={codingLabSection}>
+          <div style={codingLabBg} />
 
-      </div>
-      </div>
+          <div style={codingLabHeader} className="coding-lab-header">
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <div style={codingLabBadge}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#E07A3A", animation: "pulse 2s infinite", flexShrink: 0 }}></span>
+                Free — No Login Required
+              </div>
+              <h2 style={codingLabTitle}>
+                Practice Code,<br />
+                <span style={{ color: "#E07A3A" }}>Right Here.</span>
+              </h2>
+              <p style={codingLabDesc}>
+                Our built-in coding lab lets you write and run C++, Python, or Java
+                directly in your browser — no setup, no account needed.
+              </p>
+            </div>
 
+            <div style={codingLabPills}>
+              {["C++", "Python", "Java"].map(lang => (
+                <span key={lang} style={langPill}>{lang}</span>
+              ))}
+            </div>
+          </div>
+
+          <div style={codingLabEditorWrap}>
+            {/* Fake browser / editor chrome */}
+            <div style={editorTopBar}>
+              <div style={editorDots}>
+                <span className="editor-dot" style={{ background: "#FF5F57" }}></span>
+                <span className="editor-dot" style={{ background: "#FFBD2E" }}></span>
+                <span className="editor-dot" style={{ background: "#28C840" }}></span>
+              </div>
+              <div style={editorTabArea}>
+                <span style={editorTab}>main.cpp</span>
+              </div>
+              <div style={editorStatusDot}>
+                <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#28C840" }}></span>
+                Ready
+              </div>
+            </div>
+
+            {/* Actual CodeEditor component */}
+            <div style={codingLabInnerWrap}>
+              <CodeEditor />
+            </div>
+          </div>
+        </section>
 
         {/* ── HIGHLIGHT STRIP ── */}
         <section id="about" style={highlightStrip} className="highlight-strip-grid">
@@ -1170,7 +1354,7 @@ const Home = () => {
             <div>
               <div style={footerHeading}>Legal</div>
               {["Privacy Policy", "Terms of Service", "Cookie Policy", "Accessibility"].map(l => (
-                <a key={l} href="#" style={footerLink} className="footer-link">{l}</a>
+                <a key={l} href="#" style={footerLink} className="footer-link" >{l}</a>
               ))}
             </div>
           </div>
@@ -1179,7 +1363,7 @@ const Home = () => {
             <span>© 2026 EduTrack University Portal. All Rights Reserved.</span>
             <span>developed by g-one</span>
             <div style={divider}>
-              <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Privacy</a>
+              <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }} >Privacy</a>
               <a href="#" style={{ color: "rgba(255,255,255,0.35)", fontFamily: "'DM Sans', sans-serif" }}>Terms</a>
             </div>
           </div>

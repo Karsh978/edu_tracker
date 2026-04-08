@@ -18,11 +18,11 @@ const CodeEditor = () => {
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 2. Language badalte hi code ko reset karne ka function
+  // 2. Language badalte hi code ko reset 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
-    setCode(boilerplates[newLang]); // Code state ko update karein
-    setOutput(""); // Purana output clear kar dein
+    setCode(boilerplates[newLang]); 
+    setOutput(""); // clear old output
   };
 
   const runCode = async () => {
