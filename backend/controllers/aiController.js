@@ -5,27 +5,40 @@ exports.askAI = async (req, res) => {
     const { prompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    console.log("Asking Gemini AI directly via API...");
+    console.log("==> Sending request to Google Gemini (v1)...");
 
-    // Hum SDK use nahi kar rahe, seedha URL use karenge taaki 404 na aaye
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // FIX: Using stable 'v1' instead of 'v1beta'
+    // Model changed to 'gemini-pro' for maximum compatibility
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
-    const response = await axios.post(url, {
+    const payload = {
       contents: [{
-        parts: [{ text: `System: You are EduBot assistant. Question: ${prompt}. Answer in 1-2 lines.` }]
+        parts: [{ 
+          text: `You are EduBot, an AI for EduTrack portal. User question: ${prompt}. Answer briefly.` 
+        }]
       }]
+    };
+
+    const response = await axios.post(url, payload, {
+      headers: { 'Content-Type': 'application/json' }
     });
 
-    // Google API se response nikaalne ka tarika
-    const aiReply = response.data.candidates[0].content.parts[0].text;
-    
-    console.log("✅ AI Answered!");
-    res.json({ reply: aiReply });
+    // Check if response has valid data
+    if (response.data.candidates && response.data.candidates.length > 0) {
+        const aiReply = response.data.candidates[0].content.parts[0].text;
+        console.log("✅ Robot Responded Successfully!");
+        res.json({ reply: aiReply });
+    } else {
+        res.json({ reply: "My circuits are clear, but I have no answer." });
+    }
 
   } catch (error) {
-    console.error("AI Error:", error.response?.data || error.message);
+    // Ye line Render log mein asli wajah batayegi
+    console.error("AI Error Status:", error.response?.status);
+    console.error("AI Error Body:", JSON.stringify(error.response?.data));
+
     res.status(500).json({ 
-        reply: "I'm having a small glitch. Please ask me again in a moment!" 
+        reply: "Error: " + (error.response?.data?.error?.message || "Internal Glitch") 
     });
   }
 };
