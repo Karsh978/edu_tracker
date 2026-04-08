@@ -1,49 +1,32 @@
 const axios = require('axios');
-const dns = require('dns');
-
-// 1. Force Node.js to use IPv4 only (Render Fix)
-if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder('ipv4first');
-}
 
 exports.compileCode = async (req, res) => {
   try {
     const { code, language } = req.body;
-    console.log("==> Starting Compilation for:", language);
 
+    // JDoodle specific language settings
     const langConfig = {
-      python: { language: "python", version: "3.10.0" },
-      cpp: { language: "cpp", version: "10.2.0" },
-      java: { language: "java", version: "15.0.2" }
+      python: { lang: "python3", version: "4" },
+      cpp: { lang: "cpp17", version: "0" },
+      java: { lang: "java", version: "4" }
     };
 
     const config = langConfig[language] || langConfig.python;
 
-    // 2. Using Piston API with IP-Family 4 support
-    const response = await axios({
-      method: 'post',
-      url: 'https://emkc.org/api/v2/piston/execute',
-      data: {
-        language: config.language,
-        version: config.version,
-        files: [{ content: code }]
-      },
-      // 3. Sabse Important: Render ke DNS ko bypass karne ke liye
-      family: 4, 
-      timeout: 15000 
+    console.log(`==> Compiling via JDoodle: ${config.lang}`);
+
+    const response = await axios.post("https://api.jdoodle.com/v1/execute", {
+      clientId: process.env.JDOODLE_CLIENT_ID,
+      clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+      script: code,
+      language: config.lang,
+      versionIndex: config.version,
     });
 
-    if (response.data && response.data.run) {
-      console.log("==> Success!");
-      res.json({ output: response.data.run.output });
-    } else {
-      res.json({ output: "Executed with no output." });
-    }
+    res.json({ output: response.data.output });
 
   } catch (error) {
-    console.error("COMPILER CRASH:", error.message);
-    res.status(500).json({ 
-        output: "Compiler connection timed out. This is a common issue with Render Free tier. Please click Run again in 10 seconds." 
-    });
+    console.error("JDOODLE ERROR:", error.response?.data || error.message);
+    res.status(500).json({ output: "Compiler API Error. Please check JDoodle Credits." });
   }
 };
