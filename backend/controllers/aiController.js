@@ -1,6 +1,6 @@
 const Groq = require("groq-sdk");
 
-// Initialize Groq with your API Key
+
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 exports.askAI = async (req, res) => {
