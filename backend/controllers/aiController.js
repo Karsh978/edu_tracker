@@ -1,40 +1,36 @@
-const axios = require('axios');
+const Groq = require("groq-sdk");
+
+// Initialize Groq with your API Key
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 exports.askAI = async (req, res) => {
   try {
     const { prompt } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
 
-    console.log("==> Hitting Gemini 1.5 Flash API...");
+    console.log("==> Asking Llama 3 AI on Groq...");
 
-    // SAHI URL: Gemini 1.5 Flash v1beta endpoint par hi sabse best chalta hai
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const payload = {
-      contents: [{
-        parts: [{ 
-          text: `You are a university assistant. Help with: ${prompt}. Keep it under 2 lines.` 
-        }]
-      }]
-    };
-
-    const response = await axios.post(url, payload, {
-      headers: { 'Content-Type': 'application/json' }
+    // We use llama3-8b-8192 which is extremely fast and FREE
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are EduBot, a helpful assistant for EduTrack university. Give very short 1-line answers."
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      model: "llama3-8b-8192",
     });
 
-    // Google API response parse karne ka sahi tarika
-    if (response.data && response.data.candidates) {
-        const aiReply = response.data.candidates[0].content.parts[0].text;
-        res.json({ reply: aiReply });
-    } else {
-        res.json({ reply: "I am thinking, but no words came out. Try again!" });
-    }
+    const aiReply = chatCompletion.choices[0]?.message?.content || "I am thinking...";
+    
+    console.log("✅ AI Response received from Groq!");
+    res.json({ reply: aiReply });
 
   } catch (error) {
-    console.error("AI ASST ERROR LOG:", JSON.stringify(error.response?.data || error.message));
-    
-    // Asli error message user ko dikhana debugging ke liye
-    const errorDetail = error.response?.data?.error?.message || "Internal Glitch";
-    res.status(500).json({ reply: "Robot says: " + errorDetail });
+    console.error("GROQ ERROR:", error.message);
+    res.status(500).json({ reply: "My brain is currently resting. Please try again." });
   }
 };
