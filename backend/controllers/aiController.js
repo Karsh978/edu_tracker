@@ -1,24 +1,33 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const dns = require('dns');
+
+// Force IPv4 for Render (Vahi purana fix jo Nodemailer mein kiya tha)
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.askAI = async (req, res) => {
   try {
     const { prompt } = req.body;
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    // NEW MODEL NAME: Use 'gemini-1.5-flash' (Most stable)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // AI ko context dena taaki wo university ke baare mein baat kare
-    const chatContext = `You are EduBot, an AI assistant for EduTrack University Portal. 
-    Help students with study tips, portal navigation, and general academic advice. 
-    Answer briefly and professionally. User says: ${prompt}`;
+    const chatContext = `You are EduBot, an expert assistant for EduTrack University. 
+    User Question: ${prompt}. 
+    Please answer in a friendly, helpful, and very short manner (max 2 sentences).`;
 
     const result = await model.generateContent(chatContext);
-    const response = await result.response;
-    const text = response.text();
+    const text = result.response.text();
 
+    console.log("AI Replied successfully!");
     res.json({ reply: text });
+
   } catch (error) {
-    console.error("AI Error:", error.message);
-    res.status(500).json({ reply: "Sorry, I am taking a nap. Try again later!" });
+    // Ye log humein Render dashboard par batayega asli problem kya hai
+    console.error("AI ASST ERROR:", error.message);
+    res.status(500).json({ reply: "I'm having trouble connecting to my brain cells. Error: " + error.message });
   }
 };
