@@ -5,16 +5,15 @@ exports.askAI = async (req, res) => {
     const { prompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    console.log("==> Sending request to Google Gemini (v1)...");
+    console.log("==> Hitting Gemini 1.5 Flash API...");
 
-    // FIX: Using stable 'v1' instead of 'v1beta'
-    // Model changed to 'gemini-pro' for maximum compatibility
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+    // SAHI URL: Gemini 1.5 Flash v1beta endpoint par hi sabse best chalta hai
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{
         parts: [{ 
-          text: `You are EduBot, an AI for EduTrack portal. User question: ${prompt}. Answer briefly.` 
+          text: `You are a university assistant. Help with: ${prompt}. Keep it under 2 lines.` 
         }]
       }]
     };
@@ -23,22 +22,19 @@ exports.askAI = async (req, res) => {
       headers: { 'Content-Type': 'application/json' }
     });
 
-    // Check if response has valid data
-    if (response.data.candidates && response.data.candidates.length > 0) {
+    // Google API response parse karne ka sahi tarika
+    if (response.data && response.data.candidates) {
         const aiReply = response.data.candidates[0].content.parts[0].text;
-        console.log("✅ Robot Responded Successfully!");
         res.json({ reply: aiReply });
     } else {
-        res.json({ reply: "My circuits are clear, but I have no answer." });
+        res.json({ reply: "I am thinking, but no words came out. Try again!" });
     }
 
   } catch (error) {
-    // Ye line Render log mein asli wajah batayegi
-    console.error("AI Error Status:", error.response?.status);
-    console.error("AI Error Body:", JSON.stringify(error.response?.data));
-
-    res.status(500).json({ 
-        reply: "Error: " + (error.response?.data?.error?.message || "Internal Glitch") 
-    });
+    console.error("AI ASST ERROR LOG:", JSON.stringify(error.response?.data || error.message));
+    
+    // Asli error message user ko dikhana debugging ke liye
+    const errorDetail = error.response?.data?.error?.message || "Internal Glitch";
+    res.status(500).json({ reply: "Robot says: " + errorDetail });
   }
 };
