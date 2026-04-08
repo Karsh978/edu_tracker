@@ -1307,7 +1307,7 @@ const Home = () => {
             <div style={testimonialAuthor} className="testimonial-author-wrap">
               <div style={authorAvatar}>VP</div>
               <div style={{ textAlign: "left" }}>
-                <div style={authorName}>Dr. Vikram Patil</div>
+                <div style={authorName}>Dr Amit thakur</div>
                 <div style={authorRole}>Vice Chancellor, EduTrack University</div>
               </div>
             </div>
@@ -1346,7 +1346,7 @@ const Home = () => {
 
             <div>
               <div style={footerHeading}>Support</div>
-              {["Help Center", "Documentation", "Contact Us", "System Status"].map(l => (
+              {["Help Center", "Documentation", "Contact Us", "System Status","jivankarsh87@gmail.com","6267216334"].map(l => (
                 <a key={l} href="#" style={footerLink} className="footer-link">{l}</a>
               ))}
             </div>
